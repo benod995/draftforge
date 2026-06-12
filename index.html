@@ -319,6 +319,136 @@ const THREATS = [
   {ids:[59,42,73,10,36,50,111,102,91,83,54,43], label:"Heavy healing", advice:"<b>Spirit Vessel / Shiva's Guard / Eye of Skadi</b> — healing reduction", min:2},
 ];
 
+/* One hand-written identity line per hero: what it is, how it wins. */
+const HERO_NOTES = {
+1:"A farming tax on the enemy — avoids fights until Manta/Abyssal, then punishes every bad TP and ends in one window.",
+2:"Walks into five people and presses Call — wins by making the enemy kill him on his terms, on a Blade Mail timer.",
+3:"Single-target shutdown support: bullies the lane, then deletes one core per fight with Fiend's Grip.",
+4:"A snowball hunter — wins lanes by attrition, then chases anything that moves; falls apart from behind.",
+5:"Greedy spell-support with the best aura in the game; wins by living long enough to channel Freezing Field.",
+6:"A glass turret — wins every fight that starts at max range and loses every fight that reaches her.",
+7:"One Blink-Echo defines the game; everything else is saving gold for that single button press.",
+8:"The all-rounder carry — spins through bad lanes, wards through bad fights, Omnislashes careless supports.",
+9:"Playmaking from fog — Sacred Arrow turns vision into kills; fades if the map stops giving picks.",
+10:"Highest skill-ceiling carry in Dota: unkillable with mana, dead without it, and able to become the answer to himself.",
+11:"Trades HP for tempo mid — stack souls, hit timings, land one fight-deciding Requiem before the falloff.",
+12:"Drowns the map in illusions — wins by making enemies waste real cooldowns on fakes; folds to AoE.",
+13:"Slippery tempo mid: in, silence, coil, out — wins early games or becomes a Dream Coil bot late.",
+14:"One Hook changes a game — plays the fog, stacks Flesh Heap, turns positioning mistakes into kills.",
+15:"A lane bully that steals the enemy carry's damage and hands it back as Eye of the Storm.",
+16:"Vision-game offlaner: invisible in Sand Storm, devastating off a Blink Epicenter.",
+17:"Mana equals kills, no mana equals dead — the best pickoff mid in the game once Orchid arrives.",
+19:"Two-shots supports early, eats buildings late — Avalanche-Toss is lethal from minute one.",
+18:"A cleave goliath who needs someone to stand still — give him a stun and he deletes teams whole.",
+20:"The swap IS the hero: trades her life for your carry's — worth exactly what she saves.",
+21:"Shackleshot is the hero — one good pin per fight, and Focus Fire melts whatever's tied to the tree.",
+22:"Never stops casting from the backline — chip damage and global executes; helpless against gap-close.",
+23:"The setup offlaner: X Marks, Torrent, Ghostship into your follow-up, with rum to survive the answer.",
+25:"Burst that needs the stun first — LSA into Laguna removes one hero per cooldown cycle.",
+26:"Hex-Finger is the most reliable single-target delete in Dota; he usually dies delivering it.",
+27:"Double disable plus free towers — Mass Serpent Ward makes him the best objective support in pubs.",
+28:"Sprint, Crush, Corrosive Haze — turns one target into wet paper and chases them to the fountain.",
+29:"Holds Ravage and the fight bends around it — one of the safest teamfight anchors ever printed.",
+30:"Cask bounces win lanes, Death Ward wins fights — if anyone bothers to peel for him.",
+31:"A lane-winning frost support whose Chain Frost turns a retreat in a choke into a team wipe.",
+32:"Lives in their backline — smokes the carry, backstabs the support; useless without a gold lead.",
+33:"The whole game is one Black Hole: farm with Eidolons, hit the Blink timing, hold the channel.",
+34:"A March-Rearm machine that farms the map from fountain — insufferable ahead, helpless behind.",
+35:"Sits a full screen away and shoots — wins on positioning alone and dies the instant he's reached.",
+36:"A duel nobody else wins: heals his side, rots yours, and Scythes precisely at the kill threshold.",
+37:"Bonds and golems — sustains the lane forever, then flips any clumped fight with one Chaotic Offering.",
+38:"Vision, Roar, and an early Helm push — the offlaner that ends games before carries exist.",
+39:"Blink-in burst with no real cooldowns — takes mid, then takes the side lanes apart.",
+40:"Slow death incarnate — wards win the lane and Poison Nova puts a countdown on every fight.",
+41:"Chronosphere decides the game; the first twenty minutes are rehearsal for four perfect seconds.",
+42:"Two health bars and a crit — the most honest carry in Dota just walks at people, twice.",
+43:"Push-and-sustain mid: Exorcism eats towers while Silence mutes the response.",
+44:"A coin-flip in hero form — blurs through the midgame and one-shots with Coup; lives on BKB timing.",
+45:"Nether Ward makes enemy casting suicidal; Decrepify blanks their carry while bursting yours to safety.",
+46:"Burst windows and trap vision — Refraction makes some lanes unloseable; chip damage is her undoing.",
+47:"The matchup-ruiner: out-trades nearly every melee offlane, breaks passives, never dies, never carries.",
+48:"A farming-speed monster with a real teamfight ult — hits item timings faster than almost anyone.",
+49:"An unkillable laner that becomes a siege engine — Dragon Form takes towers nobody can contest.",
+50:"Shallow Grave changes who wins every all-in, and the longer the fight runs the harder Weave swings it.",
+51:"Cogs cut one hero off from four — a one-man kill box that starts fights nobody agreed to.",
+52:"Run-at-you AoE — towers, teamfights, everything melts while he's alive in the middle.",
+53:"Global pressure — answers every fight you take by taking two towers somewhere else.",
+54:"Rages through magic and Feasts through tanks — runs at the hardest target on purpose.",
+55:"An aura offlaner whose Vacuum-Wall is the single best fight-flip in the game when they group up.",
+56:"Burning Army sieges from fog and Orchid picks off supports before fights even begin.",
+57:"Guardian Angel switches physical damage off — their whole carry does nothing for eight seconds.",
+58:"Untouchable makes melee carries question everything; Impetus punishes them for walking away.",
+59:"The fast-game ultimatum — stat-check dives that win before minute 30, or don't win at all.",
+60:"The night is his — Crippling Fear and raw speed make caster lineups unplayable after dark.",
+61:"Takes a lane, then a quadrant — the enemy needs a specific answer or quietly loses the map.",
+62:"Permanent invisibility that warps the enemy's item builds; feasts the moment they skip detection.",
+63:"Slips every gank with Time Lapse — trades constantly, dies rarely, scales quietly into a monster.",
+64:"Range-abuse support — Ice Path into Macropyre is genuine teamfight damage on a support budget.",
+65:"One Lasso decides who fights — drags their best hero into the middle of your five.",
+66:"Creep-army tempo with a global heal — built to end games inside 25 minutes.",
+67:"After Radiance, every fight on the map includes Spectre — Haunt makes distance meaningless.",
+68:"The anti-heal: Ice Blast switches sustain lineups off and threatens executes from across the map.",
+69:"Removes one hero from Dota for a full fight — aim it at whichever kit matters most.",
+70:"A stat-check with claws — kills Roshan at ten minutes and anything he reaches; reaching is the game.",
+71:"Charges from anywhere into anyone — the gank arrives before the map awareness does.",
+72:"Right-clicks that hit the whole team — Flak loves clumped fights and minus-armor friends.",
+73:"Prints gold for the whole team and out-farms the lobby — buys his way out of every mistake.",
+74:"Ten spells across three roles — owns the tempo with Tornado-EMP or the map with Sun Strikes.",
+75:"Global Silence answers every wombo in the game while Glaives quietly steal the stats fights run on.",
+76:"Pure mana damage that deletes tanks and INT heroes alike; Astral Prison saves and sets up in one slot.",
+77:"Wolves win the lane, Shapeshift wins the gank — the cleanest tempo-carry pattern in Dota.",
+78:"Primal Split is a cheat code — three bodies of disable while the real one can't be touched.",
+79:"Steals their best hero as illusions, purges their best buffs, and saves yours with Disruption.",
+80:"Two heroes in one slot — the bear sieges while the druid scales; kiting unravels both.",
+81:"Phantasm is a one-button team: four real-damage knights that demand AoE or take the game.",
+82:"Doesn't join your gameplan — he IS the gameplan: four bodies farming the map, deleting anyone alone.",
+83:"Invisible among the trees with a global heal — wins by sustaining every lane at once.",
+84:"Two stuns and a multicast coin-flip — the tankiest, simplest, most reliable support in the pool.",
+85:"Tombstone turns fights into zombie horror — engagements near it are simply not winnable.",
+86:"Whatever their best spell is, it's his now — the scaling counter-pick that gets better as they do.",
+87:"Glimpse rewinds every escape of the last four seconds; Static Storm mutes the wombo reply.",
+88:"Vendetta walks through the enemy's wallet — the support-killer and caster-puncher in one body.",
+89:"Splits the map with illusions, and when a fight goes wrong, Song simply un-happens it.",
+90:"Wave-clear from another postcode — keeps every lane pushed and every mana bar full while the team scales.",
+91:"Doesn't play its own game — picks one carry and doubles them; Relocate makes the map tiny.",
+92:"Familiar damage is silent and absurd — a tanky nuker whose birds out-hit actual carries early.",
+93:"Eats supports to grow — every Essence Shift fight leaves him permanently stronger than before.",
+94:"Useless at 15, unkillable at 45 — the entire game is the bridge between those two facts.",
+95:"An attack-speed avalanche — Battle Trance forces the fight and wins any extended right-click war.",
+96:"Blink-Stomp initiation on a body that hurts you for hitting it.",
+97:"RP is the fight and Empower is the economy — a greedy mid that pays out in one perfect Blink.",
+98:"Eats strength lanes alive — Reactive Armor laughs at physical harass while Chakram shreds the fight.",
+99:"Walks backwards at you forever — un-burstable, un-chaseable, and every pursuit is a mistake.",
+100:"Snowball delivers the gank and Walrus Punch ends it — a kill-lane support with a built-in save.",
+101:"One Flare per fight, one kill per Flare — needs the setup, deletes whatever is held inside it.",
+102:"Borrowed Time makes focus-fire backfire — the harder they hit him, the healthier he gets.",
+103:"Echo Stomp into Earth Splitter cuts teams in half — the wombo support that never gets banned.",
+104:"Duel is double-or-nothing — snowballs damage forever, or donates it; momentum is the build.",
+105:"Reshapes the map through threat alone — whole regions become no-go zones; tilts more than it kills.",
+106:"Untouchable with Remnants down — fights from three places at once and commits to none of them.",
+107:"The highest-skill four in the game — kicks, silences, and saves from a hero made of momentum.",
+108:"An aura fortress — Atrophy makes fights near him mathematically losing, and Rift evacuates the team.",
+109:"Metamorphosis is a stat cheat — demon-form pushes most lineups simply cannot contest early.",
+110:"Dives in flames, dies into an egg, comes back — Supernova forces impossible focus decisions.",
+111:"False Promise rewrites how a fight ends — the strongest save in Dota stapled to real damage.",
+112:"Winter's Curse makes their own team kill their carry; Cold Embrace makes burst pointless.",
+113:"Two of everything — the Double runs a second hero's worth of items and split-pushes for free.",
+114:"Lives in trees the enemy forgot — Wukong's Command makes any clumped fight a losing one.",
+119:"Bramble-fear control in a cute package — one of the highest disable totals per fight in the game.",
+120:"Rolls through entire teams — disruption incarnate, nearly impossible to pin mid-Thunder.",
+121:"Soulbind turns their save heroes into executioners of their own carry — punishes pairs like nothing else.",
+123:"Acorn harass and Bushwhack picks from fog — a lane bully that matures into pure utility.",
+126:"In and out before the stun key is pressed — burst with invulnerability frames built in.",
+128:"Cookie saves, cookie engages — and Mortimer Kisses turn every chokepoint into lava.",
+129:"Builds the fight a stadium — Arena turns any pick into a 1v5 the enemy isn't allowed to leave.",
+131:"Escape Act un-kills your cores — a circus of control that always has one more trick ready.",
+135:"Converges from anywhere — Solar Guardian turns every enemy dive into a 2v5 they started.",
+136:"Bodyguard and assassin at once — Dispose saves or kills, Unleash deletes whoever Sidekick chooses.",
+137:"A freight train with a channel on the end — point Pulverize at the squishiest thing alive.",
+138:"A ghost gunslinger — Pierce the Veil makes the enemy's physical answers temporarily irrelevant.",
+145:"A weapon-swap tempo carry — one stance picks fights, the other wins them; rewards pure aggression.",
+};
+
 /* ---------- mechanics knowledge base ----------
    heroId -> {tag: "Signature Ability"}. Used to generate *reasons* for matchups. */
 const MECH = {
@@ -803,48 +933,69 @@ function renderResults(rows, ctx){
 /* ---------- "why this pick" generator ---------- */
 function whyText(r){
   const parts = [];
-  const myWR = 100*r.st.win/r.st.games;
-  if(r.st.games >= 50 && myWR >= 55)      parts.push(`One of your strongest heroes — <b>${myWR.toFixed(0)}%</b> over <b>${r.st.games}</b> games is a real edge.`);
-  else if(r.st.games >= 30 && myWR >= 52) parts.push(`Proven comfort: <b>${myWR.toFixed(0)}%</b> across <b>${r.st.games}</b> games.`);
-  else if(myWR >= 55)                     parts.push(`Promising record (<b>${myWR.toFixed(0)}%</b>) but only ${r.st.games} games — small sample.`);
-  else                                    parts.push(`<b>${r.st.games}</b> games at <b>${myWR.toFixed(0)}%</b> for you.`);
+  if(HERO_NOTES[r.hid]) parts.push(`<b>${HERO_NOTES[r.hid]}</b>`);
 
-  // favorable matchups: list ALL enemies it's good into, with mechanic reasons where known
+  // lead with whichever component is actually driving the verdict
+  const myWR = (100*r.st.win/r.st.games).toFixed(0);
+  const comps = [
+    {k:"comfort", v:r.comfort},
+    {k:"counter", v:r.counter},
+    {k:"synergy", v:r.synergy},
+    {k:"meta",    v:r.meta},
+  ].sort((a,b)=>Math.abs(b.v)-Math.abs(a.v));
+  const dom = comps[0];
+  if(dom.k==="comfort" && dom.v>0){
+    if(r.st.games>=100)     parts.push(`And it's *yours*: ${r.st.games} games deep at ${myWR}% — the single strongest signal on this card.`);
+    else if(r.st.games>=30) parts.push(`Your ${myWR}% over ${r.st.games} games is what's carrying this verdict.`);
+    else                    parts.push(`A hot ${myWR}% — but only ${r.st.games} games, so treat the comfort signal gently.`);
+  }else if(dom.k==="counter" && dom.v>0){
+    parts.push(`The draft is begging for it: ${fmt(r.counter)} of matchup edge against what they've shown (you're ${myWR}% on it over ${r.st.games} games).`);
+  }else if(dom.k==="meta" && dom.v>0){
+    parts.push(`The patch is doing the heavy lifting — ${r.ms.wr.toFixed(1)}% pub winrate right now${r.ms.pick<=6?", and almost nobody is picking it":""}.`);
+  }else if(dom.k==="synergy" && dom.v>0){
+    parts.push(`Your lineup is built for it — ${fmt(r.synergy)} synergy with the picks so far (${myWR}% for you across ${r.st.games} games).`);
+  }else{
+    parts.push(`${r.st.games} games at ${myWR}% — a serviceable rather than spectacular fit here.`);
+  }
+
+  // favorable matchups with curated reasons
   const strong = r.vsDetail.filter(d=>d.adv>=1).sort((a,b)=>b.adv-a.adv);
   if(strong.length){
     parts.push(`Strong into ${strong.map(d=>`<b>${d.name}</b> (${fmt(d.adv)})`).join(" and ")}.`);
-    let reasonsGiven = 0;
+    let given = 0;
     for(const d of strong){
       const rs = matchReasons(r.hid, d.id);
-      if(rs.length && reasonsGiven < 2){ parts.push(rs[0]); reasonsGiven++; }
+      if(rs.length && given < 2){ parts.push(rs[0]); given++; }
     }
   }
-  // mechanic edge that the stats haven't caught yet (data-neutral matchup, known interaction)
+  // known mechanic edge the stats haven't priced in yet
   for(const d of r.vsDetail.filter(d=>d.adv>-1 && d.adv<1)){
     const rs = matchReasons(r.hid, d.id);
-    if(rs.length){ parts.push(`Bonus vs <b>${d.name}</b>: ${rs[0]}`); break; }
+    if(rs.length){ parts.push(`Hidden edge vs <b>${d.name}</b>: ${rs[0]}`); break; }
   }
-  // warning: worst matchup, with the reason if mechanics explain it
+  // warning with the reason when mechanics explain it
   const worst = [...r.vsDetail].sort((a,b)=>a.adv-b.adv)[0];
   if(worst && worst.adv <= -1.5){
     const why = matchReasons(worst.id, r.hid);
     parts.push(`Careful into <b>${worst.name}</b> (${fmt(worst.adv)})${why.length ? " — " + why[0] : "."}`);
   }
 
+  // synergy: curated pair text first
   const bestWith = [...r.withDetail].sort((a,b)=>b.adv-a.adv)[0];
   if(bestWith && bestWith.adv >= 1){
     const sr = synReasons(bestWith.id, r.hid);
-    parts.push(`Pairs well with your <b>${bestWith.name}</b> (${fmt(bestWith.adv)} synergy)${sr.length ? " — " + sr[0] : "."}`);
+    parts.push(`Pairs with your <b>${bestWith.name}</b> (${fmt(bestWith.adv)})${sr.length ? " — " + sr[0] : "."}`);
   }
   for(const d of r.withDetail.filter(d=>d.adv < 1)){
     const sr = synReasons(d.id, r.hid);
     if(sr.length){ parts.push(`Combo with <b>${d.name}</b>: ${sr[0]}`); break; }
   }
 
-  if(r.ms.wr >= 52)      parts.push(`Thriving this patch at <b>${r.ms.wr.toFixed(1)}%</b> pub winrate.`);
-  else if(r.ms.wr <= 47) parts.push(`Below the curve this patch (<b>${r.ms.wr.toFixed(1)}%</b> pub WR) — your comfort has to carry it.`);
-  if(r.ms.wr >= 51 && r.ms.pick <= 6) parts.push(`Under-picked sleeper (${r.ms.pick.toFixed(1)}% pick rate).`);
-
+  // meta notes only when they add something beyond the lead
+  if(dom.k!=="meta"){
+    if(r.ms.wr <= 47) parts.push(`Patch headwind: ${r.ms.wr.toFixed(1)}% pub WR right now — your comfort has to beat the meta.`);
+    else if(r.ms.wr >= 51 && r.ms.pick <= 6) parts.push(`Quiet sleeper this patch: ${r.ms.wr.toFixed(1)}% WR on a ${r.ms.pick.toFixed(1)}% pick rate.`);
+  }
   return parts.join(" ");
 }
 
