@@ -328,7 +328,7 @@ const MECH = {
   4:{move_punish:"Rupture",silence_break:"Bloodrage"},
   5:{channel_ult:"Freezing Field",magic_burst:"Freezing Field"},
   6:{silence:"Gust",heavy_physical:"Marksmanship"},
-  7:{aoe_clear:"Echo Slam",big_ult:"Echo Slam"},
+  7:{aoe_clear:"Echo Slam",big_ult:"Echo Slam",lockdown:"Fissure"},
   8:{spell_immune_ability:"Blade Fury",heal_heavy:"Healing Ward",heavy_physical:"Omnislash"},
   9:{mobility:"Leap",lockdown:"Sacred Arrow",invis:"Moonlight Shadow"},
   10:{heal_heavy:"Attribute Shift",mobility:"Waveform",heavy_physical:"morphed Agility damage"},
@@ -340,42 +340,42 @@ const MECH = {
   16:{invis:"Sand Storm",aoe_clear:"Sand Storm + Epicenter",big_ult:"Epicenter"},
   17:{mobility:"Ball Lightning",mana_dependent:"Ball Lightning",magic_burst:"spell combo"},
   18:{heavy_physical:"God's Strength",aoe_clear:"Great Cleave",lockdown:"Storm Hammer"},
-  19:{magic_burst:"Avalanche + Toss"},
+  19:{magic_burst:"Avalanche + Toss",lockdown:"Avalanche stun"},
   20:{armor_reduction:"Wave of Terror",lockdown:"Magic Missile"},
   21:{evasion:"Windrun",lockdown:"Shackleshot",heavy_physical:"Focus Fire"},
   22:{magic_burst:"Thundergod's Wrath",mana_dependent:"Arc Lightning spam"},
   23:{aoe_clear:"Torrent + Ghostship",anti_blink:"X Marks the Spot"},
-  25:{magic_burst:"Laguna Blade"},
+  25:{magic_burst:"Laguna Blade",lockdown:"Light Strike Array"},
   26:{lockdown:"Hex",mana_burn:"Mana Drain",magic_burst:"Finger of Death"},
   27:{lockdown:"Hex + Shackles",channel_ult:"Shackles"},
   28:{armor_reduction:"Corrosive Haze",lockdown:"Slithereen Crush"},
   29:{big_ult:"Ravage",tanky:"Kraken Shell"},
-  30:{channel_ult:"Death Ward",heal_heavy:"Voodoo Restoration"},
+  30:{channel_ult:"Death Ward",heal_heavy:"Voodoo Restoration",lockdown:"Paralyzing Cask"},
   31:{magic_burst:"Chain Frost",aoe_clear:"Chain Frost bounces"},
   32:{invis:"Cloak and Dagger",silence:"Smoke Screen"},
-  33:{channel_ult:"Black Hole",big_ult:"Black Hole",summon:"Eidolons"},
+  33:{channel_ult:"Black Hole",big_ult:"Black Hole",summon:"Eidolons",lockdown:"Malefice"},
   34:{mana_dependent:"Rearm",magic_burst:"Laser + Missiles",combo_caster:"Rearm combos"},
   35:{heavy_physical:"Assassinate range"},
   36:{heal_heavy:"Death Pulse"},
   37:{summon:"Chaotic Offering golems",heal_heavy:"Shadow Word",big_ult:"Chaotic Offering"},
-  38:{summon:"Beasts",pierce_control:"Primal Roar"},
-  40:{summon:"Plague Wards"},
+  38:{summon:"Beasts",pierce_control:"Primal Roar",lockdown:"Primal Roar"},
+  40:{summon:"Plague Wards",magic_burst:"Poison Nova"},
   39:{mobility:"Blink",magic_burst:"Sonic Wave"},
   41:{big_ult:"Chronosphere",mobility:"Time Walk",heavy_physical:"Time Lock bashes"},
   42:{reincarnate:"Reincarnation",heal_heavy:"Vampiric Spirit"},
-  43:{silence:"Silence",heal_heavy:"Exorcism healing"},
+  43:{silence:"Silence",heal_heavy:"Exorcism healing",heavy_physical:"Exorcism spirits"},
   44:{evasion:"Blur",heavy_physical:"Coup de Grâce",passive_reliant:"Blur + Coup de Grâce"},
   45:{ethereal:"Decrepify",caster_punish:"Nether Ward"},
-  46:{heavy_physical:"Meld strikes"},
+  46:{heavy_physical:"Meld strikes",armor_reduction:"Meld armor shred"},
   47:{break:"Nethertoxin",tanky:"Corrosive Skin"},
   48:{heavy_physical:"Lucent Beam crits"},
-  49:{tanky:"Dragon Blood"},
+  49:{tanky:"Dragon Blood",lockdown:"Dragon Tail"},
   50:{savior:"Shallow Grave",heal_heavy:"Shadow Wave"},
   51:{lockdown:"Power Cogs trap"},
   52:{magic_burst:"Pulse Nova",mana_dependent:"Pulse Nova"},
   53:{summon:"Nature's Call"},
   54:{spell_immune_ability:"Rage",heal_heavy:"Feast",heavy_physical:"Feast right-clicks"},
-  55:{mirror:"Wall of Replica"},
+  55:{mirror:"Wall of Replica",big_ult:"Vacuum + Wall"},
   56:{invis:"Skeleton Walk",heavy_physical:"Searing Arrows"},
   57:{savior:"Guardian Angel",heal_heavy:"Purification"},
   58:{summon:"enchanted creeps",atk_slow:"Untouchable",heal_heavy:"Nature's Attendants"},
@@ -384,17 +384,17 @@ const MECH = {
   61:{summon:"Spiderlings"},
   62:{invis:"Shadow Walk"},
   63:{invis:"Shukuchi",mobility:"Time Lapse",heavy_physical:"Geminate Attack"},
-  64:{aoe_clear:"Macropyre + Dual Breath"},
-  65:{pierce_control:"Flaming Lasso"},
+  64:{aoe_clear:"Macropyre + Dual Breath",magic_burst:"Macropyre",lockdown:"Ice Path"},
+  65:{pierce_control:"Flaming Lasso",lockdown:"Flaming Lasso"},
   66:{summon:"Holy Persuasion creeps",savior:"Hand of God",heal_heavy:"Hand of God"},
   67:{tanky:"Dispersion",heavy_physical:"Haunt right-clicks"},
   68:{heal_cut:"Ice Blast"},
-  69:{silence:"Doom"},
+  69:{silence:"Doom",lockdown:"Doom"},
   70:{heavy_physical:"Fury Swipes"},
   72:{aoe_clear:"Flak Cannon",heavy_physical:"Flak right-clicks"},
   71:{lockdown:"Charge of Darkness"},
   73:{tanky:"Chemical Rage",heal_heavy:"Chemical Rage regen"},
-  74:{combo_caster:"Invoke combos",summon:"Forge Spirits",mana_burn:"EMP"},
+  74:{combo_caster:"Invoke combos",summon:"Forge Spirits",mana_burn:"EMP",magic_burst:"Sun Strike combos"},
   75:{silence:"Global Silence"},
   76:{magic_burst:"Sanity's Eclipse",pure_dmg:"Arcane Orb"},
   77:{summon:"Wolves"},
@@ -407,7 +407,7 @@ const MECH = {
   84:{tanky:"raw Strength + Multicast",lockdown:"Fireblast"},
   85:{summon:"Tombstone zombies"},
   86:{spell_steal:"Spell Steal"},
-  87:{anti_blink:"Glimpse",lockdown:"Kinetic Field"},
+  87:{anti_blink:"Glimpse",lockdown:"Kinetic Field",silence:"Static Storm"},
   88:{mana_burn:"Mana Burn",invis:"Vendetta",caster_punish:"Spiked Carapace"},
   89:{illu:"Mirror Image",big_ult:"Song of the Siren setup"},
   90:{aoe_clear:"Illuminate"},
@@ -416,13 +416,13 @@ const MECH = {
   93:{invis:"Shadow Dance",dispel:"Dark Pact",mobility:"Pounce",heavy_physical:"Essence Shift stacks"},
   94:{mana_dependent:"Mana Shield",tanky:"Mana Shield",heavy_physical:"Split Shot"},
   95:{heavy_physical:"Fervor attack speed"},
-  96:{tanky:"Return"},
-  97:{big_ult:"Reverse Polarity"},
-  98:{tanky:"Reactive Armor"},
+  96:{tanky:"Return",lockdown:"Hoof Stomp"},
+  97:{big_ult:"Reverse Polarity",lockdown:"Reverse Polarity + Skewer"},
+  98:{tanky:"Reactive Armor",magic_burst:"Whirling Death + Chakram"},
   99:{tanky:"Bristleback",passive_reliant:"Bristleback"},
   100:{savior:"Snowball scoop",lockdown:"Snowball stun"},
   101:{magic_burst:"Mystic Flare",silence:"Ancient Seal"},
-  103:{aoe_clear:"Earth Splitter",big_ult:"Earth Splitter",armor_reduction:"Natural Order"},
+  103:{aoe_clear:"Earth Splitter",big_ult:"Earth Splitter",armor_reduction:"Natural Order",lockdown:"Echo Stomp"},
   105:{magic_burst:"Mines + Blast Off"},
   102:{savior:"Borrowed Time",dispel:"Aphotic Shield",heal_heavy:"Mist Coil"},
   104:{lockdown:"Duel",dispel:"Press the Attack"},
@@ -434,18 +434,18 @@ const MECH = {
   111:{savior:"False Promise",heal_heavy:"Purifying Flames",dispel_enemy:"Fortune's End"},
   112:{savior:"Cold Embrace",lockdown:"Winter's Curse"},
   113:{illu:"Tempest Double"},
-  114:{heavy_physical:"Boundless Strike crits"},
+  114:{heavy_physical:"Boundless Strike crits",lockdown:"Boundless Strike stun",big_ult:"Wukong's Command"},
   119:{lockdown:"Bramble Maze + Terrorize"},
   120:{mobility:"Rolling Thunder"},
   121:{lockdown:"Soulbind"},
   123:{lockdown:"Bushwhack"},
   126:{mobility:"Dissimilate"},
-  128:{aoe_clear:"Mortimer Kisses",savior:"Gobble Up"},
+  128:{aoe_clear:"Mortimer Kisses",savior:"Gobble Up",lockdown:"Firesnap Cookie"},
   131:{savior:"Escape Act"},
-  129:{big_ult:"Arena of Blood",phys_block:"Bulwark"},
-  135:{savior:"Solar Guardian",heal_heavy:"Solar Guardian"},
+  129:{big_ult:"Arena of Blood",phys_block:"Bulwark",lockdown:"Spear of Mars"},
+  135:{savior:"Solar Guardian",heal_heavy:"Solar Guardian",lockdown:"Starbreaker"},
   136:{lockdown:"Dispose",mobility:"Rebound",heavy_physical:"Unleash"},
-  137:{channel_ult:"Pulverize",tanky:"Uproar armor"},
+  137:{channel_ult:"Pulverize",tanky:"Uproar armor",lockdown:"Onslaught"},
   138:{ethereal_self:"Pierce the Veil",magic_burst:"Pierce the Veil magic damage"},
   145:{heavy_physical:"Talon strikes"},
 };
@@ -495,6 +495,33 @@ const PAIR_NOTES = {
   "86-97": "Spell Steal on Reverse Polarity wins the fight on its own.",
   "1-105": "Counterspell reflects Techies' burst back at them.",
 };
+
+/* Synergy rules: ally tag (setup) x candidate tag (payoff) -> reason */
+const SYN_RULES = [
+  {a:"big_ult",c:"magic_burst",t:(aN,aA,cA)=>`${aN}'s ${aA} stacks them up perfectly for your ${cA}.`},
+  {a:"big_ult",c:"channel_ult",t:(aN,aA,cA)=>`${aN}'s ${aA} buys the full channel time for ${cA}.`},
+  {a:"big_ult",c:"heavy_physical",t:(aN,aA,cA)=>`${aN}'s ${aA} holds the fight still while ${cA} does the killing.`},
+  {a:"lockdown",c:"heavy_physical",t:(aN,aA,cA)=>`${aN}'s ${aA} pins targets for your ${cA}.`},
+  {a:"lockdown",c:"magic_burst",t:(aN,aA,cA)=>`${aN}'s ${aA} guarantees ${cA} lands.`},
+  {a:"lockdown",c:"channel_ult",t:(aN,aA,cA)=>`${aN}'s ${aA} protects your ${cA} channel.`},
+  {a:"armor_reduction",c:"heavy_physical",t:(aN,aA,cA)=>`${aN}'s ${aA} shreds armor so ${cA} hits twice as hard.`},
+  {a:"savior",c:"heavy_physical",t:(aN,aA)=>`${aN}'s ${aA} keeps you swinging through the focus fire.`},
+  {a:"heal_cut",c:"heavy_physical",t:(aN,aA)=>`${aN}'s ${aA} makes your damage stick — nothing heals back up.`},
+];
+
+/* Reasons why candidate pairs well with ally (checks both directions) */
+function synReasons(allyId, candId){
+  const am = MECH[allyId]||{}, cm = MECH[candId]||{};
+  const aName = S.heroes.get(allyId)?.name || "your ally";
+  const out = [];
+  for(const r of SYN_RULES){
+    if(am[r.a] && cm[r.c]) out.push(r.t(aName, am[r.a], cm[r.c]));
+  }
+  for(const r of SYN_RULES){
+    if(cm[r.a] && am[r.c]) out.push(`${cm[r.a]} sets up ${aName}'s ${am[r.c]} beautifully.`);
+  }
+  return out;
+}
 
 /* All reasons why hero a beats hero b (may be empty) */
 function matchReasons(aId, bId){
@@ -670,7 +697,7 @@ async function recommend(){
       if(m.has(hid)){
         const adv = m.get(hid);
         synergy += adv; synSamples++;
-        withDetail.push({name:S.heroes.get(allies[i])?.name||"?", adv});
+        withDetail.push({id:allies[i], name:S.heroes.get(allies[i])?.name||"?", adv});
       }
     });
     synergy = synSamples ? synergy/synSamples : 0;
@@ -719,10 +746,12 @@ function renderResults(rows, ctx){
         </div>
         <div class="why">${whyText(r)}</div>
         <button class="ghost itemsBtn" data-hid="${r.hid}">⚒ Item build</button>
+        <button class="ghost itemsBtn deepBtn" data-hid="${r.hid}">✦ Deep analysis</button>
       </div>
       <div class="score">${fmt(r.score)}<small>VERDICT</small></div>
       <div class="itemsPanel" id="ip-${r.hid}"></div>`;
     card.querySelector(".itemsBtn").onclick = (e)=>toggleItems(e.target, r.hid);
+    card.querySelector(".deepBtn").onclick = (e)=>deepAnalysis(e.target, r);
     out.appendChild(card);
   });
 }
@@ -759,7 +788,14 @@ function whyText(r){
   }
 
   const bestWith = [...r.withDetail].sort((a,b)=>b.adv-a.adv)[0];
-  if(bestWith && bestWith.adv >= 1) parts.push(`Pairs well with your <b>${bestWith.name}</b> (${fmt(bestWith.adv)} synergy).`);
+  if(bestWith && bestWith.adv >= 1){
+    const sr = synReasons(bestWith.id, r.hid);
+    parts.push(`Pairs well with your <b>${bestWith.name}</b> (${fmt(bestWith.adv)} synergy)${sr.length ? " — " + sr[0].charAt(0).toLowerCase()+sr[0].slice(1) : "."}`);
+  }
+  for(const d of r.withDetail.filter(d=>d.adv < 1)){
+    const sr = synReasons(d.id, r.hid);
+    if(sr.length){ parts.push(`Combo with <b>${d.name}</b>: ${sr[0].charAt(0).toLowerCase()+sr[0].slice(1)}`); break; }
+  }
 
   if(r.ms.wr >= 52)      parts.push(`Thriving this patch at <b>${r.ms.wr.toFixed(1)}%</b> pub winrate.`);
   else if(r.ms.wr <= 47) parts.push(`Below the curve this patch (<b>${r.ms.wr.toFixed(1)}%</b> pub WR) — your comfort has to carry it.`);
@@ -837,6 +873,31 @@ async function toggleItems(btn, hid){
 }
 const fmt = v => (v>=0?"+":"")+v.toFixed(1);
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+/* ---------- AI deep analysis (optional /explain endpoint) ---------- */
+async function deepAnalysis(btn, r){
+  const panel = document.getElementById("ip-"+r.hid);
+  panel.classList.add("open");
+  panel.innerHTML = `<div class="empty" style="padding:10px">Thinking about this draft…</div>`;
+  const q = new URLSearchParams({
+    c: r.hid, n: S.heroes.get(r.hid)?.name||"", role: S.role,
+    a: S.allies.filter(Boolean).map(id=>S.heroes.get(id)?.name).join("|"),
+    e: S.enemies.filter(Boolean).map(id=>S.heroes.get(id)?.name).join("|"),
+    g: r.st.games, w: r.st.win, mw: r.ms.wr.toFixed(1),
+  });
+  try{
+    const resp = await fetch(`/explain?${q}`);
+    if(resp.status===503){
+      panel.innerHTML = `<div class="notice" style="padding:6px 0">AI deep analysis isn't enabled on this deployment — the owner can add an <b>ANTHROPIC_API_KEY</b> secret in Cloudflare to turn it on.</div>`;
+      return;
+    }
+    if(!resp.ok) throw new Error("HTTP "+resp.status);
+    const d = await resp.json();
+    panel.innerHTML = `<div class="why" style="margin-top:0">${escapeHtml(d.text).replace(/\n/g,"<br>")}</div>`;
+  }catch(err){
+    panel.innerHTML = `<div class="notice" style="padding:6px 0">Deep analysis failed (${err.message}).</div>`;
+  }
+}
 
 /* ---------- board / picker UI ---------- */
 function renderRoles(){
