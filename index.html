@@ -580,65 +580,42 @@ const MECH = {
   145:{heavy_physical:"Talon strikes"},
 };
 
-/* Rules: candidate tag × enemy tag → reason text. c/e are tag names. */
-const RULES = [
-  {c:"reincarnate",e:"channel_ult",t:(cA,e,eA)=>`${cA} means ${e} has to find a second ${eA} — the first one gets shrugged off.`},
-  {c:"reincarnate",e:"big_ult",t:(cA,e,eA)=>`${cA} ruins ${e}'s big ${eA} commitment.`},
-  {c:"mana_burn",e:"mana_dependent",t:(cA,e,eA)=>`${cA} starves ${e}'s mana — and ${e} is a passenger without it.`},
-  {c:"silence",e:"channel_ult",t:(cA,e,eA)=>`${cA} cancels ${e}'s ${eA} outright.`},
-  {c:"silence",e:"combo_caster",t:(cA,e)=>`${cA} shuts ${e}'s combo down before it starts.`},
-  {c:"aoe_clear",e:"illu",t:(cA,e)=>`${cA} deletes ${e}'s illusions in one cast.`},
-  {c:"aoe_clear",e:"summon",t:(cA,e)=>`${cA} clears ${e}'s summons instantly.`},
-  {c:"aoe_clear",e:"clones",t:(cA,e)=>`One good ${cA} threatens every ${e} clone at once.`},
-  {c:"silence",e:"mobility",t:(cA,e,eA)=>`${cA} grounds ${e} — no ${eA} while silenced.`},
-  {c:"magic_resist",e:"magic_burst",t:(cA,e,eA)=>`${cA} shrugs off most of ${e}'s ${eA}.`},
-  {c:"spell_immune_ability",e:"magic_burst",t:(cA,e)=>`${cA} walks straight through ${e}'s magic.`},
-  {c:"spell_immune_ability",e:"lockdown",t:(cA,e,eA)=>`${cA} ignores ${e}'s ${eA}.`},
-  {c:"pierce_control",e:"spell_immune_ability",t:(cA,e,eA)=>`${cA} goes straight through ${e}'s ${eA}.`},
-  {c:"break",e:"passive_reliant",t:(cA,e,eA)=>`${cA} switches off ${e}'s ${eA}.`},
-  {c:"heal_cut",e:"heal_heavy",t:(cA,e,eA)=>`${cA} turns ${e}'s ${eA} off completely.`},
-  {c:"lockdown",e:"mobility",t:(cA,e,eA)=>`${cA} pins ${e} down before ${eA} can save them.`},
-  {c:"anti_blink",e:"mobility",t:(cA,e)=>`${cA} drags ${e} right back into the fight.`},
-  {c:"move_punish",e:"mobility",t:(cA,e,eA)=>`${cA} turns ${e}'s ${eA} into self-damage.`},
-  {c:"dmg_reduce",e:"heavy_physical",t:(cA,e)=>`${cA} saps ${e}'s attack damage just by standing nearby.`},
-  {c:"ethereal",e:"heavy_physical",t:(cA,e)=>`${cA} blanks ${e}'s physical damage.`},
-  {c:"ethereal_self",e:"heavy_physical",t:(cA,e)=>`${cA} makes their physical damage useless during fights.`},
-  {c:"phys_block",e:"heavy_physical",t:(cA,e)=>`${cA} eats ${e}'s right-clicks.`},
-  {c:"evasion",e:"heavy_physical",t:(cA,e)=>`${cA} blanks a chunk of ${e}'s attacks.`},
-  {c:"atk_slow",e:"heavy_physical",t:(cA,e)=>`${cA} cripples ${e}'s attack speed on contact.`},
-  {c:"mirror",e:"heavy_physical",t:(cA,e)=>`${cA} turns ${e}'s own damage against them.`},
-  {c:"spell_steal",e:"big_ult",t:(cA,e,eA)=>`${cA} can take ${eA} for your side.`},
-  {c:"spell_steal",e:"channel_ult",t:(cA,e,eA)=>`${cA} can take ${eA} for your side.`},
-  {c:"caster_punish",e:"magic_burst",t:(cA,e)=>`${cA} makes ${e} pay for every cast.`},
-  {c:"dmg_steal",e:"heavy_physical",t:(cA,e)=>`${cA} drains ${e}'s damage away mid-fight.`},
-  {c:"pure_dmg",e:"tanky",t:(cA,e)=>`${cA} melts straight through ${e}'s tankiness.`},
-  {c:"armor_reduction",e:"tanky",t:(cA,e)=>`${cA} shreds ${e}'s armor.`},
-  {c:"dispel",e:"lockdown",t:(cA,e,eA)=>`${cA} shrugs off ${e}'s ${eA}.`},
-  {c:"dispel_enemy",e:"heal_heavy",t:(cA,e)=>`${cA} strips ${e}'s buffs and regen.`},
-  {c:"savior",e:"magic_burst",t:(cA,e)=>`${cA} undoes ${e}'s burst damage.`},
-];
+/* ============================================================
+   REASONING ENGINE
+   Priority: curated pair text > per-hero voice > rule variants.
+   Variant selection is deterministic per hero-pair, so the same
+   pairing always reads the same, but different pairings differ.
+   ============================================================ */
 
-/* Hand-curated famous matchup notes that generic tags can't express. "aId-bId" = a beats b. */
+/* -- Curated counter notes: "aId-bId" = a beats b -- */
 const PAIR_NOTES = {
   "10-15": "Morph can ult into Razor and Static Link him right back with a bigger stat pool.",
   "10-94": "Morph can copy Medusa and out-trade her with morphed Agility.",
   "86-97": "Spell Steal on Reverse Polarity wins the fight on its own.",
   "1-105": "Counterspell reflects Techies' burst back at them.",
   "1-17": "Mana Break bleeds Storm dry and Mana Void detonates whatever Ball Lightning left behind.",
-  "29-4": "Kraken Shell dispels Rupture on its own — Tide just walks.",
+  "29-4": "Kraken Shell dispels Rupture on its own — Tide just walks away.",
   "102-4": "Aphotic Shield dispels Rupture instantly; Bloodseeker's whole kill condition disappears.",
-  "54-14": "Rage makes Lifestealer immune to the Hook follow-up — Pudge catches a hero he can't actually kill.",
+  "54-14": "Rage makes Lifestealer immune to the Hook follow-up — Pudge catches a hero he can't kill.",
   "49-61": "Dragon Blood wins the regen war and Elder Dragon splash deletes Spiderlings — Brood's worst lane.",
-  "69-59": "Doom switches off Berserker's Blood — Huskar at low HP without his passive is just a dead Huskar.",
+  "69-59": "Doom switches off Berserker's Blood — Huskar at low HP without his passive is just a corpse with spears.",
   "69-99": "Doom turns off Bristleback's entire kit; the back armor stops existing.",
   "68-102": "Borrowed Time heals through damage — except Ice Blast turns all healing off and walks straight through it.",
   "79-57": "Demonic Purge strips Guardian Angel the moment it's cast.",
   "111-12": "Fortune's End purges Phantom Lancer's illusion swarm in an area.",
   "22-46": "Zeus's constant multi-instance damage strips Refraction charges before TA reaches anyone.",
   "45-42": "Decrepify keeps Wraith King's right-clicks blanked through both of his lives.",
+  "2-44": "Berserker's Call forces Phantom Assassin to swing into Blade Mail with Blur doing nothing about it.",
+  "26-10": "Hex doesn't care how much Agility Morph shifted — frogs don't Waveform.",
+  "75-33": "Black Hole is the single best Global Silence target in the game — he can never safely channel.",
+  "41-93": "Chronosphere is the one prison Dark Pact can't wriggle out of — Slark's whole kit pauses.",
+  "44-35": "Blur gaps the screen, and Sniper's entire hero is that screen — one Blink Strike ends him.",
+  "63-14": "Time Lapse rewinds the Hook — Pudge lands his big play and Weaver simply un-happens it.",
+  "94-12": "Split Shot mows the illusion swarm while Mana Shield ignores the chip damage PL relies on.",
+  "67-22": "Haunt punishes Zeus for being a hero with no legs — there is nowhere on the map he's safe.",
 };
 
-/* Curated famous synergy pairs — order-independent. Key: "lowId-highId". */
+/* -- Curated famous synergy pairs: "lowId-highId" -- */
 const SYN_PAIRS = {
   "19-91": "Relocate + Toss + Avalanche — the oldest global kill combo in the game, online from minute six.",
   "72-91": "The classic Relocate-Gyro gank: drop in, Call Down, Rocket Barrage someone off the map, vanish.",
@@ -652,7 +629,7 @@ const SYN_PAIRS = {
   "30-41": "Death Ward fires freely into Chronosphere while everyone inside can't move.",
   "41-74": "Chronosphere makes Sun Strike + EMP unmissable.",
   "33-55": "Vacuum + Wall pulls them into Black Hole's reach — double stack, no escape.",
-  "33-64": "Macropyre laid across Black Hole burns the whole hold duration.",
+  "33-64": "Macropyre laid across Black Hole burns for the entire hold.",
   "33-103": "Echo Stomp into Black Hole, Earth Splitter underneath — the full wombo.",
   "29-110": "Ravage holds everyone inside Supernova's burn until the egg pops.",
   "30-129": "Death Ward inside Arena of Blood: nowhere to run from max-range ward bounces.",
@@ -667,37 +644,170 @@ const SYN_PAIRS = {
   "9-79": "Disruption holds the target in place for a guaranteed max-range Sacred Arrow.",
   "9-103": "Echo Stomp sleeps the target for a free five-second Sacred Arrow line-up.",
   "5-82": "Arcane Aura feeds Meepo's endless Poof mana — he scales off her just by existing.",
+  "65-129": "Flaming Lasso drags their best hero into Arena of Blood — a private execution chamber.",
+  "3-101": "Fiend's Grip is the longest hold in the game, and Mystic Flare needs exactly that.",
+  "26-39": "Hex into Sonic Wave burst — Lion picks the target, QoP erases it.",
+  "68-104": "Ice Blast under a Duel means no Aphotic, no Grave, no Mist Coil — the Duel target just dies.",
+  "20-44": "Wave of Terror plus Vengeance Aura turns Coup de Grâce crits into delete keys.",
+  "28-95": "Corrosive Haze on a Battle Trance target melts before the trance ends.",
+  "31-82": "Frost Shield turns the Meepo ball unkillable while it Poof-stacks people down.",
+  "55-72": "Surge keeps Gyro repositioning while Flak Cannon strafes everything in the Vacuum cluster.",
+  "37-103": "Echo Stomp holds them asleep for Chaotic Offering to land on the full five.",
+  "83-9": "Nature's Guise invisibility walks Mirana into point-blank Sacred Arrow range.",
 };
 
-/* Generic synergy rules — only kept where the interaction is genuinely mechanical and non-obvious */
-const SYN_RULES = [
-  {a:"big_ult",c:"aoe_payoff",t:(aN,aA,cA)=>`${aN}'s ${aA} stacks them so the whole team eats your ${cA}.`},
-  {a:"big_ult",c:"channel_ult",t:(aN,aA,cA)=>`${aN}'s ${aA} buys the full uninterrupted channel for ${cA}.`},
-  {a:"silence",c:"channel_ult",t:(aN,aA,cA)=>`${aN}'s ${aA} removes the interrupts — ${cA} channels free.`},
-  {a:"silence",c:"big_ult",t:(aN,aA,cA)=>`${aN}'s ${aA} stops every answer to your ${cA}.`},
-  {a:"single_lock",c:"flare_payoff",t:(aN,aA,cA)=>`${aN}'s ${aA} holds the target inside the entire ${cA} burn — the one setup this spell truly needs.`},
-  {a:"armor_reduction",c:"heavy_physical",t:(aN,aA,cA)=>`${aN}'s ${aA} strips armor, and ${cA} is exactly the damage that exploits it.`},
-  {a:"savior",c:"heavy_physical",t:(aN,aA)=>`${aN}'s ${aA} lets you commit deeper than the enemy expects — and keep swinging.`},
-  {a:"heal_cut",c:"heavy_physical",t:(aN,aA)=>`${aN}'s ${aA} makes your damage permanent — nothing heals back up.`},
+/* Heroes that don't want "X sets up your burst" lines — they set up themselves. */
+const SELF_SETUP = new Set([82, 34, 12]);   // Meepo, Tinker, PL
+
+/* -- Per-hero counter voice: "tag:actingHeroId" -> unique phrasing -- */
+const C_VOICE = {
+  "reincarnate:42": (e,eA)=>`Reincarnation means ${e} has to win the fight twice — and ${eA||"their big commitment"} only happens once.`,
+  "silence:69": (e)=>`Doom doesn't silence ${e} — it deletes them from the game for the length of the fight.`,
+  "silence:75": (e,eA)=>`Global Silence answers ${eA||"their spellwork"} from anywhere on the map, before the fight even forms.`,
+  "silence:101": (e,eA)=>`Ancient Seal doesn't just stop ${eA||"the cast"} — it amplifies everything that hits ${e} afterwards.`,
+  "silence:32": (e,eA)=>`Smoke Screen lands on top of ${e}'s head with no warning — ${eA||"the cast"} dies in the cloud.`,
+  "silence:60": (e)=>`Crippling Fear at night is a death sentence — ${e} can't cast and can't outrun him either.`,
+  "mana_burn:1": (e)=>`Every hit Anti-Mage lands is mana ${e} no longer has — and Mana Void cashes in the difference.`,
+  "mana_burn:88": (e)=>`Nyx burns the mana from invisibility — ${e} finds out when the pool is already empty.`,
+  "mana_burn:26": (e)=>`Mana Drain is free, spammable, and ${e}'s entire game plan leaks out through it.`,
+  "aoe_clear:7": (e)=>`One Echo Slam and ${e}'s extra bodies become extra damage — against Earthshaker they're a liability, not an army.`,
+  "aoe_clear:31": (e)=>`Chain Frost bounces hardest exactly when ${e} makes more targets — the swarm feeds it.`,
+  "aoe_clear:64": (e)=>`Dual Breath and Macropyre cost Jakiro nothing and cost ${e} the entire swarm.`,
+  "aoe_clear:72": (e)=>`Flak Cannon doesn't aim — every right-click hits the whole screen, and ${e}'s extra units melt for free.`,
+  "spell_immune_ability:8": (e)=>`Blade Fury is a portable BKB on a ten-second cooldown — ${e}'s magic simply isn't part of Juggernaut's fight.`,
+  "spell_immune_ability:54": (e)=>`Rage on demand means ${e}'s lockdown window closes the moment Lifestealer presses one button.`,
+  "evasion:44": (e)=>`Blur means roughly half of ${e}'s attacks never happened — without an MKB the math is unwinnable.`,
+  "magic_resist:59": (e)=>`The lower Huskar drops the less ${e}'s magic does — Berserker's Blood inverts the burst race.`,
+  "magic_resist:1": (e,eA)=>`Counterspell sends ${eA||"the nuke"} back where it came from.`,
+  "heal_cut:68": (e,eA)=>`Ice Blast doesn't reduce ${eA||"their healing"} — it sets it to zero, from the other side of the map.`,
+  "break:47": (e,eA)=>`Nethertoxin quietly switches off ${eA||"the passive"} — ${e}'s hero stops working and the kill follows.`,
+  "dmg_steal:15": (e)=>`Static Link doesn't fight ${e}'s damage — it confiscates it and swings back with it.`,
+  "pure_dmg:76": (e)=>`Arcane Orb is pure damage scaling off OD's own mana — ${e}'s armor and HP pool are both irrelevant.`,
+  "ethereal:45": (e)=>`One Decrepify and ${e}'s right-clicks pass straight through their own target.`,
+  "mirror:55": (e)=>`Wall of Replica hands Dark Seer a copy of ${e}'s own carry — their best hero fights for both sides.`,
+  "mirror:79": (e)=>`Disruption returns ${e} with two hostile copies of themselves — Shadow Demon counters by photocopying.`,
+  "spell_steal:86": (e,eA)=>`Rubick only needs to see ${eA||"the big spell"} once — after that it belongs to your team.`,
+  "anti_blink:87": (e,eA)=>`${eA||"The escape"} happened? Glimpse says it didn't — four seconds rewound, fight resumed.`,
+  "move_punish:4": (e,eA)=>`Rupture inverts ${e}'s greatest strength: every meter of ${eA||"mobility"} becomes self-inflicted damage.`,
+  "pierce_control:2": (e,eA)=>`Berserker's Call goes straight through ${eA||"spell immunity"} — Axe doesn't ask permission.`,
+  "pierce_control:65": (e)=>`Flaming Lasso ignores the BKB ${e} bought specifically to stop this.`,
+  "lockdown:3": (e,eA)=>`Fiend's Grip holds longer than ${eA||"any escape"} can wait out — Bane picks one hero and that hero stops playing.`,
+  "lockdown:26": (e,eA)=>`Hex is the answer key: ${eA||"the escape"} doesn't work when you're a frog.`,
+  "atk_slow:58": (e)=>`Untouchable punishes ${e} for the crime of attacking — their attack speed evaporates on contact.`,
+  "caster_punish:45": (e)=>`Nether Ward sits there charging ${e} mana-tax with interest — every cast hurts them back.`,
+  "dispel:93": (e,eA)=>`Dark Pact shrugs off ${eA||"the disable"} on a four-second cooldown — Slark is the wrong hero to try to hold.`,
+  "armor_reduction:28": (e)=>`Corrosive Haze strips ${e} to negative armor and true sight — there is no hiding and no tanking it.`,
+  "dmg_reduce:108": (e)=>`Atrophy Aura quietly deletes a third of ${e}'s damage just for standing in the fight.`,
+  "phys_block:129": (e)=>`Bulwark eats ${e}'s right-clicks from the front — Mars literally faces the problem and it stops existing.`,
+};
+
+/* -- Per-hero synergy voice: "tag:actingAllyId" -> unique setup phrasing -- */
+const S_VOICE = {
+  "big_ult:97": (c,cA)=>`Reverse Polarity stacks five of them into a tidy pile for ${cA} — the textbook wombo.`,
+  "big_ult:29": (c,cA)=>`Ravage is the longest AoE hold in the game — ${cA} gets a free, full-duration window.`,
+  "big_ult:33": (c,cA)=>`Black Hole holds them for four full seconds of ${cA} — the fight is decided before they can act.`,
+  "big_ult:41": (c,cA)=>`Chronosphere freezes the fight — ${cA} happens to statues.`,
+  "big_ult:129": (c,cA)=>`Arena of Blood locks the doors — ${cA} happens inside and nobody is allowed to leave.`,
+  "big_ult:7": (c,cA)=>`Fissure splits the fight and Echo Slam staggers it — ${cA} cleans up the pieces.`,
+  "big_ult:89": (c,cA)=>`Song freezes the fight on your terms — regroup, position, and open with ${cA}.`,
+  "lockdown:3": (c,cA)=>`Fiend's Grip is a six-second invitation for ${cA} — the safest setup in the game.`,
+  "lockdown:26": (c,cA)=>`Hex first, ${cA} second — the target is a frog with no buttons while it lands.`,
+  "lockdown:87": (c,cA)=>`Kinetic Field draws the circle and Glimpse drags them back into it — ${cA} never misses.`,
+  "lockdown:119": (c,cA)=>`Bramble Maze and Terrorize chain-lock the fight while ${cA} does the arithmetic.`,
+  "lockdown:51": (c,cA)=>`Cogs trap one hero in a box with ${cA} — there is no worse place to be.`,
+  "savior:111": (c)=>`False Promise means ${c} can dive past the point of no return — death is postponed until the fight is won.`,
+  "savior:50": (c)=>`Shallow Grave under ${c} flips every all-in: the enemy spends everything and gets nothing.`,
+  "savior:102": (c)=>`Aphotic Shield strips the disables off ${c} mid-fight and Borrowed Time threatens a second engage.`,
+  "savior:91": (c)=>`Tether doubles ${c}'s regen and Relocate yanks the whole dive out when it sours.`,
+  "savior:135": (c)=>`Solar Guardian means every fight ${c} starts becomes a 2v5 the moment Dawnbreaker lands.`,
+  "armor_reduction:28": (c,cA)=>`Corrosive Haze takes the target to negative armor — ${cA} hits like it's two items ahead.`,
+  "armor_reduction:20": (c,cA)=>`Wave of Terror plus the aura quietly adds an item's worth of damage to every ${cA} hit.`,
+  "armor_reduction:103": (c,cA)=>`Natural Order strips base resistances — ${cA} does its full sticker price.`,
+  "heal_cut:68": (c)=>`Ice Blast makes ${c}'s damage final — no Grave, no Mist Coil, no second chances behind it.`,
+  "silence:75": (c,cA)=>`Global Silence falls and ${cA} happens into total quiet — no saves, no answers, no buyout.`,
+  "silence:87": (c,cA)=>`Static Storm mutes the counterplay while ${cA} resolves in peace.`,
+};
+
+/* Generic rule variants — selected deterministically per pairing so repeats only occur for the same pair */
+const pick = (arr, a, b) => arr[(a*31 + b*7) % arr.length];
+
+const RULES = [
+  {c:"reincarnate",e:"channel_ult",v:[(cA,e,eA)=>`${cA} means ${e} must land ${eA} twice — the first one achieves nothing.`,(cA,e,eA)=>`${e}'s ${eA} is a once-a-fight commitment, and ${cA} demands it twice.`]},
+  {c:"reincarnate",e:"big_ult",v:[(cA,e,eA)=>`${cA} turns ${e}'s ${eA} into a half-measure — the fight restarts immediately.`,(cA,e,eA)=>`${e} blows ${eA} and gets a skeleton with full mana for their trouble.`]},
+  {c:"mana_burn",e:"mana_dependent",v:[(cA,e,eA)=>`${cA} drains the tank that ${eA} runs on — ${e} without mana is a creep.`,(cA,e)=>`${e}'s entire hero is a mana bar, and ${cA} is a hole in it.`]},
+  {c:"silence",e:"channel_ult",v:[(cA,e,eA)=>`${cA} cancels ${eA} outright — the channel never finishes.`,(cA,e,eA)=>`${e} needs uninterrupted seconds for ${eA}; ${cA} guarantees they never get them.`]},
+  {c:"silence",e:"combo_caster",v:[(cA,e)=>`${cA} lands before the combo starts — ${e} stands there holding their hotkeys.`,(cA,e)=>`${e}'s kit is a sequence, and ${cA} breaks the first link.`]},
+  {c:"aoe_clear",e:"illu",v:[(cA,e)=>`${cA} deletes ${e}'s illusions wholesale — the swarm is the hero, and it evaporates.`,(cA,e)=>`${e} multiplies; ${cA} divides faster.`]},
+  {c:"aoe_clear",e:"summon",v:[(cA,e)=>`${cA} clears ${e}'s summons before they earn their gold back.`,(cA,e)=>`${e}'s army costs cooldowns to build and ${cA} spends one to erase it.`]},
+  {c:"aoe_clear",e:"clones",v:[(cA,e)=>`One good ${cA} threatens every ${e} body at once — the one fight he can't split out of.`]},
+  {c:"magic_resist",e:"magic_burst",v:[(cA,e,eA)=>`${cA} shrugs off the bulk of ${eA} — ${e}'s burst math stops working.`,(cA,e)=>`${e} is a magic-damage hero, and ${cA} is the wrong audience for it.`]},
+  {c:"spell_immune_ability",e:"magic_burst",v:[(cA,e)=>`${cA} walks straight through ${e}'s magic on a short cooldown.`,(cA,e)=>`${e}'s damage needs a target that isn't immune; ${cA} removes that target on demand.`]},
+  {c:"spell_immune_ability",e:"lockdown",v:[(cA,e,eA)=>`${cA} ignores ${eA} — ${e}'s control simply doesn't apply.`,(cA,e,eA)=>`${e} presses ${eA} and ${cA} answers with immunity.`]},
+  {c:"pierce_control",e:"spell_immune_ability",v:[(cA,e,eA)=>`${cA} goes straight through ${eA} — the immunity they rely on isn't immunity here.`]},
+  {c:"break",e:"passive_reliant",v:[(cA,e,eA)=>`${cA} switches off ${eA} — and that passive is most of the hero.`]},
+  {c:"heal_cut",e:"heal_heavy",v:[(cA,e,eA)=>`${cA} turns ${eA} off completely — the sustain game ends.`,(cA,e)=>`${e} wins long fights through healing; ${cA} makes every fight a short one.`]},
+  {c:"lockdown",e:"mobility",v:[(cA,e,eA)=>`${cA} lands before ${eA} can answer — caught is killed.`,(cA,e,eA)=>`${e}'s escape plan is ${eA}; ${cA} is the reason plans fail.`]},
+  {c:"anti_blink",e:"mobility",v:[(cA,e)=>`${cA} drags ${e} right back into the fight they just left.`]},
+  {c:"move_punish",e:"mobility",v:[(cA,e,eA)=>`${cA} converts ${eA} into self-damage — the faster ${e} runs, the faster they die.`]},
+  {c:"ethereal",e:"heavy_physical",v:[(cA,e)=>`${cA} blanks ${e}'s physical damage — their carry attacks ghosts.`]},
+  {c:"ethereal_self",e:"heavy_physical",v:[(cA,e)=>`${cA} makes their physical damage irrelevant for the fight's critical seconds.`]},
+  {c:"phys_block",e:"heavy_physical",v:[(cA,e)=>`${cA} eats ${e}'s right-clicks head-on.`]},
+  {c:"evasion",e:"heavy_physical",v:[(cA,e)=>`${cA} taxes every one of ${e}'s attacks — without true strike, the DPS math collapses.`]},
+  {c:"atk_slow",e:"heavy_physical",v:[(cA,e)=>`${cA} cripples ${e}'s attack speed on contact — the carry can't carry in slow motion.`]},
+  {c:"mirror",e:"heavy_physical",v:[(cA,e)=>`${cA} turns ${e}'s own damage against them.`]},
+  {c:"spell_steal",e:"big_ult",v:[(cA,e,eA)=>`${cA} takes ${eA} for your side — their best button becomes yours.`]},
+  {c:"spell_steal",e:"channel_ult",v:[(cA,e,eA)=>`${cA} can lift ${eA} — they channel it once and donate it forever.`]},
+  {c:"caster_punish",e:"magic_burst",v:[(cA,e)=>`${cA} makes ${e} pay for every cast — their damage costs them more than it costs you.`]},
+  {c:"dmg_steal",e:"heavy_physical",v:[(cA,e)=>`${cA} drains ${e}'s damage away mid-fight and uses it against them.`]},
+  {c:"pure_dmg",e:"tanky",v:[(cA,e)=>`${cA} melts straight through ${e}'s tankiness — resistances don't apply.`]},
+  {c:"armor_reduction",e:"tanky",v:[(cA,e)=>`${cA} shreds the armor that makes ${e} tanky in the first place.`]},
+  {c:"dispel",e:"lockdown",v:[(cA,e,eA)=>`${cA} shrugs off ${eA} — holding this hero requires more than ${e} has.`]},
+  {c:"dispel_enemy",e:"heal_heavy",v:[(cA,e)=>`${cA} strips ${e}'s buffs and regen at the worst possible moment for them.`]},
+  {c:"savior",e:"magic_burst",v:[(cA,e)=>`${cA} undoes ${e}'s burst — they spend the combo and the target stands back up.`]},
+  {c:"dmg_reduce",e:"heavy_physical",v:[(cA,e)=>`${cA} saps ${e}'s attack damage just by being in the fight.`]},
 ];
 
-/* Reasons why candidate pairs well with ally — curated pairs first, then rules */
+const SYN_RULES = [
+  {a:"big_ult",c:"aoe_payoff",v:[(aN,aA,cA)=>`${aN}'s ${aA} stacks them so the whole team eats your ${cA}.`,(aN,aA,cA)=>`${aA} groups them; ${cA} punishes the grouping — clean division of labour.`]},
+  {a:"big_ult",c:"magic_burst",v:[(aN,aA,cA)=>`${aN}'s ${aA} hands you stationary targets for ${cA}.`,(aN,aA,cA)=>`${aA} opens the window, ${cA} closes the fight.`]},
+  {a:"big_ult",c:"heavy_physical",v:[(aN,aA,cA)=>`${aN}'s ${aA} holds the fight still while ${cA} does the killing.`,(aN,aA,cA)=>`Free hits on held targets — ${aA} into ${cA} is damage they never get to answer.`]},
+  {a:"big_ult",c:"channel_ult",v:[(aN,aA,cA)=>`${aN}'s ${aA} buys the full uninterrupted channel for ${cA}.`]},
+  {a:"lockdown",c:"heavy_physical",v:[(aN,aA,cA)=>`${aN}'s ${aA} gives ${cA} a stationary target — held heroes don't fight back.`,(aN,aA,cA)=>`${aA} catches, ${cA} kills — the oldest two-step in Dota.`]},
+  {a:"lockdown",c:"magic_burst",v:[(aN,aA,cA)=>`${aN}'s ${aA} guarantees the full ${cA} lands before they can react.`,(aN,aA,cA)=>`${aA} first, ${cA} second — burst that can't be juked.`]},
+  {a:"lockdown",c:"channel_ult",v:[(aN,aA,cA)=>`${aN}'s ${aA} keeps the divers off you while ${cA} channels.`]},
+  {a:"silence",c:"channel_ult",v:[(aN,aA,cA)=>`${aN}'s ${aA} removes the interrupts — ${cA} channels free.`]},
+  {a:"silence",c:"big_ult",v:[(aN,aA,cA)=>`${aN}'s ${aA} stops every answer to your ${cA}.`]},
+  {a:"single_lock",c:"flare_payoff",v:[(aN,aA,cA)=>`${aN}'s ${aA} holds the target inside the entire ${cA} burn — the one setup this spell truly needs.`]},
+  {a:"armor_reduction",c:"heavy_physical",v:[(aN,aA,cA)=>`${aN}'s ${aA} strips armor, and ${cA} is exactly the damage that exploits it.`]},
+  {a:"savior",c:"heavy_physical",v:[(aN,aA)=>`${aN}'s ${aA} lets you commit deeper than the enemy expects — and keep swinging.`]},
+  {a:"heal_cut",c:"heavy_physical",v:[(aN,aA)=>`${aN}'s ${aA} makes your damage permanent — nothing heals back up.`]},
+];
+
+/* Reasons why candidate pairs well with ally — curated pair > hero voice > rule variant */
 function synReasons(allyId, candId){
   const out = [];
   const key = Math.min(allyId,candId)+"-"+Math.max(allyId,candId);
   if(SYN_PAIRS[key]) out.push(SYN_PAIRS[key]);
   const am = MECH[allyId]||{}, cm = MECH[candId]||{};
   const aName = S.heroes.get(allyId)?.name || "your ally";
+  const cName = S.heroes.get(candId)?.name || "your pick";
   for(const r of SYN_RULES){
-    if(am[r.a] && cm[r.c]) out.push(r.t(aName, am[r.a], cm[r.c]));
+    if(am[r.a] && cm[r.c]){
+      if(SELF_SETUP.has(candId) && (r.c==="magic_burst"||r.c==="heavy_physical"||r.c==="aoe_payoff")) continue; // self-sufficient heroes don't need setup
+      const voice = S_VOICE[r.a+":"+allyId];
+      out.push(voice ? voice(cName, cm[r.c]) : pick(r.v, allyId, candId)(aName, am[r.a], cm[r.c]));
+    }
   }
   for(const r of SYN_RULES){
-    if(cm[r.a] && am[r.c]) out.push(`${cm[r.a]} sets up ${aName}'s ${am[r.c]} — the combo runs through your pick.`);
+    if(cm[r.a] && am[r.c] && !SELF_SETUP.has(allyId)){
+      const voice = S_VOICE[r.a+":"+candId];
+      out.push(voice ? voice(aName, am[r.c]) : pick(r.v, candId, allyId)(cName, cm[r.a], am[r.c]));
+    }
   }
   return out;
 }
 
-/* All reasons why hero a beats hero b (may be empty) */
+/* All reasons why hero a beats hero b — curated pair > hero voice > rule variant */
 function matchReasons(aId, bId){
   const out = [];
   const pn = PAIR_NOTES[aId+"-"+bId];
@@ -706,7 +816,10 @@ function matchReasons(aId, bId){
   if(!am || !bm) return out;
   const bName = S.heroes.get(bId)?.name || "them";
   for(const r of RULES){
-    if(am[r.c] && bm[r.e]) out.push(r.t(am[r.c], bName, bm[r.e]));
+    if(am[r.c] && bm[r.e]){
+      const voice = C_VOICE[r.c+":"+aId];
+      out.push(voice ? voice(bName, bm[r.e]) : pick(r.v, aId, bId)(am[r.c], bName, bm[r.e]));
+    }
   }
   return out;
 }
