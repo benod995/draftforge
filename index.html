@@ -322,10 +322,10 @@ const THREATS = [
 /* ---------- mechanics knowledge base ----------
    heroId -> {tag: "Signature Ability"}. Used to generate *reasons* for matchups. */
 const MECH = {
-  1:{mana_burn:"Mana Break",magic_resist:"Counterspell",mobility:"Blink"},
-  2:{pierce_control:"Berserker's Call"},
+  1:{mana_burn:"Mana Break",magic_resist:"Counterspell",mobility:"Blink",heavy_physical:"Mana Break right-clicks"},
+  2:{pierce_control:"Berserker's Call",lockdown:"Berserker's Call"},
   3:{channel_ult:"Fiend's Grip",lockdown:"Fiend's Grip"},
-  4:{move_punish:"Rupture",silence_break:"Bloodrage"},
+  4:{move_punish:"Rupture",heavy_physical:"Bloodrage-amped attacks"},
   5:{channel_ult:"Freezing Field",magic_burst:"Freezing Field"},
   6:{silence:"Gust",heavy_physical:"Marksmanship"},
   7:{aoe_clear:"Echo Slam",big_ult:"Echo Slam",lockdown:"Fissure"},
@@ -334,7 +334,7 @@ const MECH = {
   10:{heal_heavy:"Attribute Shift",mobility:"Waveform",heavy_physical:"morphed Agility damage"},
   11:{magic_burst:"Requiem of Souls"},
   12:{illu:"Juxtapose",heavy_physical:"Juxtapose swarm"},
-  13:{mobility:"Phase Shift",silence:"Waning Rift",combo_caster:"spell combo"},
+  13:{mobility:"Phase Shift",silence:"Waning Rift",combo_caster:"spell combo",lockdown:"Dream Coil"},
   14:{lockdown:"Meat Hook + Dismember",channel_ult:"Dismember",tanky:"Flesh Heap"},
   15:{dmg_steal:"Static Link",heavy_physical:"Static Link damage"},
   16:{invis:"Sand Storm",aoe_clear:"Sand Storm + Epicenter",big_ult:"Epicenter"},
@@ -344,7 +344,7 @@ const MECH = {
   20:{armor_reduction:"Wave of Terror",lockdown:"Magic Missile"},
   21:{evasion:"Windrun",lockdown:"Shackleshot",heavy_physical:"Focus Fire"},
   22:{magic_burst:"Thundergod's Wrath",mana_dependent:"Arc Lightning spam"},
-  23:{aoe_clear:"Torrent + Ghostship",anti_blink:"X Marks the Spot"},
+  23:{aoe_clear:"Torrent + Ghostship",anti_blink:"X Marks the Spot",lockdown:"Torrent"},
   25:{magic_burst:"Laguna Blade",lockdown:"Light Strike Array"},
   26:{lockdown:"Hex",mana_burn:"Mana Drain",magic_burst:"Finger of Death"},
   27:{lockdown:"Hex + Shackles",channel_ult:"Shackles"},
@@ -352,37 +352,37 @@ const MECH = {
   29:{big_ult:"Ravage",tanky:"Kraken Shell"},
   30:{channel_ult:"Death Ward",heal_heavy:"Voodoo Restoration",lockdown:"Paralyzing Cask"},
   31:{magic_burst:"Chain Frost",aoe_clear:"Chain Frost bounces"},
-  32:{invis:"Cloak and Dagger",silence:"Smoke Screen"},
+  32:{invis:"Cloak and Dagger",silence:"Smoke Screen",heavy_physical:"Backstab"},
   33:{channel_ult:"Black Hole",big_ult:"Black Hole",summon:"Eidolons",lockdown:"Malefice"},
   34:{mana_dependent:"Rearm",magic_burst:"Laser + Missiles",combo_caster:"Rearm combos"},
   35:{heavy_physical:"Assassinate range"},
-  36:{heal_heavy:"Death Pulse"},
+  36:{heal_heavy:"Death Pulse",magic_burst:"Reaper's Scythe"},
   37:{summon:"Chaotic Offering golems",heal_heavy:"Shadow Word",big_ult:"Chaotic Offering"},
   38:{summon:"Beasts",pierce_control:"Primal Roar",lockdown:"Primal Roar"},
   40:{summon:"Plague Wards",magic_burst:"Poison Nova"},
   39:{mobility:"Blink",magic_burst:"Sonic Wave"},
   41:{big_ult:"Chronosphere",mobility:"Time Walk",heavy_physical:"Time Lock bashes"},
-  42:{reincarnate:"Reincarnation",heal_heavy:"Vampiric Spirit"},
+  42:{reincarnate:"Reincarnation",heal_heavy:"Vampiric Spirit",lockdown:"Wraithfire Blast",heavy_physical:"Mortal Strike crits"},
   43:{silence:"Silence",heal_heavy:"Exorcism healing",heavy_physical:"Exorcism spirits"},
   44:{evasion:"Blur",heavy_physical:"Coup de Grâce",passive_reliant:"Blur + Coup de Grâce"},
-  45:{ethereal:"Decrepify",caster_punish:"Nether Ward"},
+  45:{ethereal:"Decrepify",caster_punish:"Nether Ward",magic_burst:"Nether Blast + Decrepify"},
   46:{heavy_physical:"Meld strikes",armor_reduction:"Meld armor shred"},
-  47:{break:"Nethertoxin",tanky:"Corrosive Skin"},
+  47:{break:"Nethertoxin",tanky:"Corrosive Skin",atk_slow:"Viper Strike",magic_burst:"Viper Strike + Nethertoxin"},
   48:{heavy_physical:"Lucent Beam crits"},
   49:{tanky:"Dragon Blood",lockdown:"Dragon Tail"},
   50:{savior:"Shallow Grave",heal_heavy:"Shadow Wave"},
   51:{lockdown:"Power Cogs trap"},
   52:{magic_burst:"Pulse Nova",mana_dependent:"Pulse Nova"},
-  53:{summon:"Nature's Call"},
+  53:{summon:"Nature's Call",heavy_physical:"summon-backed pushing"},
   54:{spell_immune_ability:"Rage",heal_heavy:"Feast",heavy_physical:"Feast right-clicks"},
   55:{mirror:"Wall of Replica",big_ult:"Vacuum + Wall"},
   56:{invis:"Skeleton Walk",heavy_physical:"Searing Arrows"},
   57:{savior:"Guardian Angel",heal_heavy:"Purification"},
-  58:{summon:"enchanted creeps",atk_slow:"Untouchable",heal_heavy:"Nature's Attendants"},
-  59:{magic_resist:"Berserker's Blood",heal_heavy:"Berserker's Blood regen"},
-  60:{silence:"Crippling Fear"},
-  61:{summon:"Spiderlings"},
-  62:{invis:"Shadow Walk"},
+  58:{summon:"enchanted creeps",atk_slow:"Untouchable",heal_heavy:"Nature's Attendants",heavy_physical:"Impetus"},
+  59:{magic_resist:"Berserker's Blood",heal_heavy:"Berserker's Blood regen",heavy_physical:"Burning Spears pressure"},
+  60:{silence:"Crippling Fear",heavy_physical:"Hunter in the Night attacks"},
+  61:{summon:"Spiderlings",heavy_physical:"Insatiable Hunger"},
+  62:{invis:"Shadow Walk",heavy_physical:"Jinada hits"},
   63:{invis:"Shukuchi",mobility:"Time Lapse",heavy_physical:"Geminate Attack"},
   64:{aoe_clear:"Macropyre + Dual Breath",magic_burst:"Macropyre",lockdown:"Ice Path"},
   65:{pierce_control:"Flaming Lasso",lockdown:"Flaming Lasso"},
@@ -393,53 +393,53 @@ const MECH = {
   70:{heavy_physical:"Fury Swipes"},
   72:{aoe_clear:"Flak Cannon",heavy_physical:"Flak right-clicks"},
   71:{lockdown:"Charge of Darkness"},
-  73:{tanky:"Chemical Rage",heal_heavy:"Chemical Rage regen"},
+  73:{tanky:"Chemical Rage",heal_heavy:"Chemical Rage regen",heavy_physical:"Chemical Rage attack speed"},
   74:{combo_caster:"Invoke combos",summon:"Forge Spirits",mana_burn:"EMP",magic_burst:"Sun Strike combos"},
-  75:{silence:"Global Silence"},
+  75:{silence:"Global Silence",magic_burst:"Last Word + Glaives"},
   76:{magic_burst:"Sanity's Eclipse",pure_dmg:"Arcane Orb"},
-  77:{summon:"Wolves"},
+  77:{summon:"Wolves",heavy_physical:"Shapeshift crits"},
   80:{heavy_physical:"Spirit Bear attacks"},
-  82:{clones:"Divided We Stand"},
+  82:{clones:"Divided We Stand",magic_burst:"Poof burst",lockdown:"Earthbind"},
   78:{evasion:"Drunken Brawler",big_ult:"Primal Split"},
-  79:{mirror:"Disruption illusions",dispel_enemy:"Demonic Purge"},
+  79:{mirror:"Disruption illusions",dispel_enemy:"Demonic Purge",lockdown:"Disruption setup"},
   81:{illu:"Phantasm",lockdown:"Chaos Bolt",heavy_physical:"Phantasm army"},
   83:{savior:"Living Armor",heal_heavy:"Living Armor",invis:"Nature's Guise"},
   84:{tanky:"raw Strength + Multicast",lockdown:"Fireblast"},
-  85:{summon:"Tombstone zombies"},
-  86:{spell_steal:"Spell Steal"},
+  85:{summon:"Tombstone zombies",tanky:"Flesh Golem",magic_burst:"Decay + Soul Rip"},
+  86:{spell_steal:"Spell Steal",lockdown:"Telekinesis"},
   87:{anti_blink:"Glimpse",lockdown:"Kinetic Field",silence:"Static Storm"},
-  88:{mana_burn:"Mana Burn",invis:"Vendetta",caster_punish:"Spiked Carapace"},
+  88:{mana_burn:"Mana Burn",invis:"Vendetta",caster_punish:"Spiked Carapace",lockdown:"Impale"},
   89:{illu:"Mirror Image",big_ult:"Song of the Siren setup"},
-  90:{aoe_clear:"Illuminate"},
+  90:{aoe_clear:"Illuminate",magic_burst:"Illuminate"},
   91:{savior:"Relocate",heal_heavy:"Tether heal"},
-  92:{summon:"Familiars",tanky:"Gravekeeper's Cloak"},
+  92:{summon:"Familiars",tanky:"Gravekeeper's Cloak",magic_burst:"Soul Assumption"},
   93:{invis:"Shadow Dance",dispel:"Dark Pact",mobility:"Pounce",heavy_physical:"Essence Shift stacks"},
   94:{mana_dependent:"Mana Shield",tanky:"Mana Shield",heavy_physical:"Split Shot"},
   95:{heavy_physical:"Fervor attack speed"},
   96:{tanky:"Return",lockdown:"Hoof Stomp"},
   97:{big_ult:"Reverse Polarity",lockdown:"Reverse Polarity + Skewer"},
   98:{tanky:"Reactive Armor",magic_burst:"Whirling Death + Chakram"},
-  99:{tanky:"Bristleback",passive_reliant:"Bristleback"},
+  99:{tanky:"Bristleback",passive_reliant:"Bristleback",heavy_physical:"Quill spray"},
   100:{savior:"Snowball scoop",lockdown:"Snowball stun"},
   101:{magic_burst:"Mystic Flare",silence:"Ancient Seal"},
   103:{aoe_clear:"Earth Splitter",big_ult:"Earth Splitter",armor_reduction:"Natural Order",lockdown:"Echo Stomp"},
   105:{magic_burst:"Mines + Blast Off"},
   102:{savior:"Borrowed Time",dispel:"Aphotic Shield",heal_heavy:"Mist Coil"},
   104:{lockdown:"Duel",dispel:"Press the Attack"},
-  106:{mobility:"Fire Remnant"},
+  106:{mobility:"Fire Remnant",heavy_physical:"Sleight of Fist",lockdown:"Searing Chains"},
   107:{silence:"Geomagnetic Grip",lockdown:"Boulder Smash"},
-  108:{aoe_clear:"Firestorm",dmg_reduce:"Atrophy Aura"},
+  108:{aoe_clear:"Firestorm",dmg_reduce:"Atrophy Aura",magic_burst:"Firestorm waves"},
   109:{illu:"Conjure Image",heavy_physical:"Metamorphosis"},
   110:{big_ult:"Supernova"},
   111:{savior:"False Promise",heal_heavy:"Purifying Flames",dispel_enemy:"Fortune's End"},
   112:{savior:"Cold Embrace",lockdown:"Winter's Curse"},
-  113:{illu:"Tempest Double"},
+  113:{illu:"Tempest Double",heavy_physical:"doubled right-clicks"},
   114:{heavy_physical:"Boundless Strike crits",lockdown:"Boundless Strike stun",big_ult:"Wukong's Command"},
   119:{lockdown:"Bramble Maze + Terrorize"},
-  120:{mobility:"Rolling Thunder"},
+  120:{mobility:"Rolling Thunder",lockdown:"Rolling Thunder stuns",heavy_physical:"Swashbuckle"},
   121:{lockdown:"Soulbind"},
   123:{lockdown:"Bushwhack"},
-  126:{mobility:"Dissimilate"},
+  126:{mobility:"Dissimilate",magic_burst:"Astral Step combo"},
   128:{aoe_clear:"Mortimer Kisses",savior:"Gobble Up",lockdown:"Firesnap Cookie"},
   131:{savior:"Escape Act"},
   129:{big_ult:"Arena of Blood",phys_block:"Bulwark",lockdown:"Spear of Mars"},
@@ -507,6 +507,8 @@ const SYN_RULES = [
   {a:"armor_reduction",c:"heavy_physical",t:(aN,aA,cA)=>`${aN}'s ${aA} shreds armor so ${cA} hits twice as hard.`},
   {a:"savior",c:"heavy_physical",t:(aN,aA)=>`${aN}'s ${aA} keeps you swinging through the focus fire.`},
   {a:"heal_cut",c:"heavy_physical",t:(aN,aA)=>`${aN}'s ${aA} makes your damage stick — nothing heals back up.`},
+  {a:"silence",c:"big_ult",t:(aN,aA,cA)=>`${aN}'s ${aA} stops every answer to your ${cA}.`},
+  {a:"silence",c:"channel_ult",t:(aN,aA,cA)=>`${aN}'s ${aA} silences the interrupts so ${cA} channels free.`},
 ];
 
 /* Reasons why candidate pairs well with ally (checks both directions) */
@@ -778,23 +780,23 @@ function whyText(r){
   // mechanic edge that the stats haven't caught yet (data-neutral matchup, known interaction)
   for(const d of r.vsDetail.filter(d=>d.adv>-1 && d.adv<1)){
     const rs = matchReasons(r.hid, d.id);
-    if(rs.length){ parts.push(`Bonus vs <b>${d.name}</b>: ${rs[0].charAt(0).toLowerCase()+rs[0].slice(1)}`); break; }
+    if(rs.length){ parts.push(`Bonus vs <b>${d.name}</b>: ${rs[0]}`); break; }
   }
   // warning: worst matchup, with the reason if mechanics explain it
   const worst = [...r.vsDetail].sort((a,b)=>a.adv-b.adv)[0];
   if(worst && worst.adv <= -1.5){
     const why = matchReasons(worst.id, r.hid);
-    parts.push(`Careful into <b>${worst.name}</b> (${fmt(worst.adv)})${why.length ? " — " + why[0].charAt(0).toLowerCase()+why[0].slice(1) : "."}`);
+    parts.push(`Careful into <b>${worst.name}</b> (${fmt(worst.adv)})${why.length ? " — " + why[0] : "."}`);
   }
 
   const bestWith = [...r.withDetail].sort((a,b)=>b.adv-a.adv)[0];
   if(bestWith && bestWith.adv >= 1){
     const sr = synReasons(bestWith.id, r.hid);
-    parts.push(`Pairs well with your <b>${bestWith.name}</b> (${fmt(bestWith.adv)} synergy)${sr.length ? " — " + sr[0].charAt(0).toLowerCase()+sr[0].slice(1) : "."}`);
+    parts.push(`Pairs well with your <b>${bestWith.name}</b> (${fmt(bestWith.adv)} synergy)${sr.length ? " — " + sr[0] : "."}`);
   }
   for(const d of r.withDetail.filter(d=>d.adv < 1)){
     const sr = synReasons(d.id, r.hid);
-    if(sr.length){ parts.push(`Combo with <b>${d.name}</b>: ${sr[0].charAt(0).toLowerCase()+sr[0].slice(1)}`); break; }
+    if(sr.length){ parts.push(`Combo with <b>${d.name}</b>: ${sr[0]}`); break; }
   }
 
   if(r.ms.wr >= 52)      parts.push(`Thriving this patch at <b>${r.ms.wr.toFixed(1)}%</b> pub winrate.`);
