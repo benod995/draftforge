@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draftforge — Personal Dota 2 Draft Recommender</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#15120e;
+  --panel:#1e1a14;
+  --panel-2:#262019;
+  --line:#3a3225;
+  --brass:#c8a24b;
+  --brass-dim:#8a7239;
+  --parchment:#e8e0cd;
+  --muted:#9a8f78;
+  --radiant:#6fbf73;
+  --radiant-deep:#1d3320;
+  --dire:#c84c42;
+  --dire-deep:#33201d;
+  --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{
+  font-family:'Alegreya Sans',sans-serif;
+  color:var(--parchment);
+  background:
+    radial-gradient(1100px 500px at 18% -10%, rgba(111,191,115,.05), transparent 60%),
+    radial-gradient(1100px 500px at 82% -10%, rgba(200,76,66,.05), transparent 60%),
+    var(--bg);
+  min-height:100vh;
+  font-size:16px;
+  line-height:1.45;
+}
+.wrap{max-width:1060px;margin:0 auto;padding:28px 20px 80px}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding-bottom:18px;flex-wrap:wrap}
+h1{font-family:'Cinzel',serif;font-weight:700;font-size:30px;letter-spacing:.06em;color:var(--brass)}
+h1 span{color:var(--parchment)}
+.tag{color:var(--muted);font-size:14px}
+
+/* ---------- panels ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px;margin-top:20px}
+.panel h2{font-family:'Cinzel',serif;font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);font-weight:600;margin-bottom:12px}
+
+/* ---------- connect row ---------- */
+.connect{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--muted);letter-spacing:.05em}
+input[type=text],input[type=password],input[type=number]{
+  background:var(--panel-2);border:1px solid var(--line);border-radius:4px;
+  color:var(--parchment);padding:9px 11px;font-family:var(--mono);font-size:14px;min-width:220px;
+}
+input:focus-visible,button:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+button{
+  font-family:'Alegreya Sans',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;
+  background:linear-gradient(180deg,#d8b35c,#a9853c);color:#1a150d;border:1px solid #e3c577;
+  border-radius:4px;padding:10px 18px;cursor:pointer;
+}
+button:hover{filter:brightness(1.08)}
+button.ghost{background:var(--panel-2);color:var(--parchment);border:1px solid var(--line);font-weight:500}
+.hint{font-size:13px;color:var(--muted);margin-top:10px}
+.hint code{font-family:var(--mono);color:var(--brass);font-size:12px}
+.status{margin-top:10px;font-size:14px}
+.status.ok{color:var(--radiant)}
+.status.err{color:var(--dire)}
+.profile{display:flex;align-items:center;gap:10px;margin-top:12px}
+.profile img{width:38px;height:38px;border-radius:4px;border:1px solid var(--brass-dim)}
+.profile .nm{font-weight:700}
+.profile .sub{font-size:13px;color:var(--muted);font-family:var(--mono)}
+
+/* ---------- roles ---------- */
+.roles{display:flex;gap:8px;flex-wrap:wrap}
+.role{
+  background:var(--panel-2);border:1px solid var(--line);border-radius:4px;color:var(--muted);
+  padding:8px 14px;cursor:pointer;font-weight:500;font-size:14px;
+}
+.role.active{border-color:var(--brass);color:var(--brass);background:#2b2417}
+
+/* ---------- draft board ---------- */
+.board{display:grid;grid-template-columns:1fr 34px 1fr;gap:0;margin-top:20px}
+.side{border:1px solid var(--line);border-radius:6px;padding:16px}
+.side.radiant{background:linear-gradient(160deg,var(--radiant-deep),var(--panel));border-color:#2c4a2f}
+.side.dire{background:linear-gradient(200deg,var(--dire-deep),var(--panel));border-color:#4a2c28}
+.side h2{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;margin-bottom:12px}
+.side.radiant h2{color:var(--radiant)}
+.side.dire h2{color:var(--dire)}
+.river{position:relative}
+.river::before{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:1px;background:linear-gradient(var(--radiant),var(--brass),var(--dire));opacity:.5}
+.slots{display:flex;gap:10px;flex-wrap:wrap}
+.slot{
+  width:86px;height:48px;border:1px dashed var(--line);border-radius:4px;background:rgba(0,0,0,.25);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;
+  color:var(--muted);font-size:22px;font-weight:300;
+}
+.slot:hover{border-color:var(--brass-dim)}
+.slot img{width:100%;height:100%;object-fit:cover;display:block}
+.slot.filled{border-style:solid}
+.slot .x{
+  position:absolute;top:0;right:0;background:rgba(0,0,0,.7);color:var(--parchment);
+  width:18px;height:18px;font-size:12px;line-height:18px;text-align:center;display:none;
+}
+.slot.filled:hover .x{display:block}
+
+/* ---------- picker overlay ---------- */
+.overlay{position:fixed;inset:0;background:rgba(10,8,5,.82);display:none;z-index:50;align-items:flex-start;justify-content:center;padding:50px 16px}
+.overlay.open{display:flex}
+.picker{background:var(--panel);border:1px solid var(--brass-dim);border-radius:6px;max-width:760px;width:100%;max-height:80vh;display:flex;flex-direction:column}
+.picker .top{padding:14px;border-bottom:1px solid var(--line);display:flex;gap:10px}
+.picker input{flex:1;min-width:0}
+.grid{overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;padding:14px}
+.cell{cursor:pointer;border:1px solid transparent;border-radius:4px;overflow:hidden;background:var(--panel-2)}
+.cell:hover{border-color:var(--brass)}
+.cell img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
+.cell div{font-size:11px;padding:3px 5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- tuning ---------- */
+.tuning{display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.tuning .field{min-width:170px}
+input[type=range]{accent-color:var(--brass);width:160px}
+.tuning .val{font-family:var(--mono);font-size:12px;color:var(--brass)}
+
+/* ---------- results ---------- */
+.results{margin-top:20px}
+.empty{color:var(--muted);font-size:14px;padding:18px;border:1px dashed var(--line);border-radius:6px;text-align:center}
+.card{
+  display:grid;grid-template-columns:128px 1fr 110px;gap:16px;align-items:center;
+  background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin-bottom:10px;
+}
+.card:first-child{border-color:var(--brass-dim);box-shadow:0 0 0 1px rgba(200,162,75,.25)}
+.card img{width:128px;border-radius:4px;display:block}
+.card .nm{font-weight:700;font-size:17px}
+.card .meta{font-size:13px;color:var(--muted);font-family:var(--mono)}
+.score{font-family:var(--mono);font-size:24px;font-weight:600;text-align:right;color:var(--brass)}
+.score small{display:block;font-size:10px;letter-spacing:.14em;color:var(--muted);font-weight:400}
+
+/* signature: verdict blade */
+.blade{display:flex;height:10px;border-radius:5px;overflow:hidden;background:#0d0b08;margin:8px 0 6px;border:1px solid var(--line)}
+.blade .seg{height:100%}
+.seg.comfort{background:var(--brass)}
+.seg.counter{background:var(--dire)}
+.seg.counter.pos{background:#d98b3a}
+.seg.synergy{background:var(--radiant)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);font-family:var(--mono)}
+.legend b{font-weight:600}
+.legend .c{color:var(--brass)}
+.legend .k{color:#d98b3a}
+.legend .s{color:var(--radiant)}
+.neg{color:var(--dire)!important}
+
+.notice{font-size:13px;color:var(--muted);margin-top:8px;font-style:italic}
+@media (max-width:760px){
+  .board{grid-template-columns:1fr}
+  .river{display:none}
+  .card{grid-template-columns:96px 1fr;}
+  .card img{width:96px}
+  .score{grid-column:2;text-align:left}
+}
+@media (prefers-reduced-motion:no-preference){
+  .card{animation:rise .25s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>DRAFT<span>FORGE</span></h1>
+  <div class="tag">Pick suggestions from <em>your</em> hero pool — comfort × counters × synergy</div>
+</header>
+
+<!-- CONNECT -->
+<div class="panel">
+  <h2>Player</h2>
+  <div class="connect" id="signinRow">
+    <button id="steamBtn">⛨ &nbsp;Sign in through Steam</button>
+    <button class="ghost" id="signOutBtn" style="display:none">Sign out</button>
+  </div>
+  <details style="margin-top:12px">
+    <summary style="cursor:pointer;font-size:13px;color:var(--muted)">Or enter an account ID manually</summary>
+    <div class="connect" style="margin-top:10px">
+      <div class="field">
+        <label for="acct">Account ID (Steam32 or Steam64)</label>
+        <input type="text" id="acct" placeholder="e.g. 86745912" autocomplete="off">
+      </div>
+      <button class="ghost" id="loadBtn">Load player</button>
+    </div>
+    <div class="hint">The number in your Dotabuff URL: <code>dotabuff.com/players/&lt;ID&gt;</code></div>
+  </details>
+  <div class="hint">Match data must be set public in Dota: Settings → Options → Social → <b>Expose Public Match Data</b> (then play one game).</div>
+  <div class="status" id="status"></div>
+  <div class="profile" id="profile" style="display:none"></div>
+</div>
+
+<!-- ROLE -->
+<div class="panel">
+  <h2>Your queued role</h2>
+  <div class="roles" id="roles"></div>
+</div>
+
+<!-- DRAFT BOARD -->
+<div class="board">
+  <div class="side radiant">
+    <h2>Your team</h2>
+    <div class="slots" id="allySlots"></div>
+  </div>
+  <div class="river"></div>
+  <div class="side dire">
+    <h2>Enemy team</h2>
+    <div class="slots" id="enemySlots"></div>
+  </div>
+</div>
+
+<!-- TUNING -->
+<div class="panel">
+  <h2>Tuning</h2>
+  <div class="tuning">
+    <div class="field"><label>Comfort weight <span class="val" id="wpV">1.0</span></label><input type="range" id="wp" min="0" max="2" step="0.1" value="1.0"></div>
+    <div class="field"><label>Counter weight <span class="val" id="wcV">1.2</span></label><input type="range" id="wc" min="0" max="2" step="0.1" value="1.2"></div>
+    <div class="field"><label>Synergy weight <span class="val" id="wsV">0.8</span></label><input type="range" id="ws" min="0" max="2" step="0.1" value="0.8"></div>
+    <div class="field"><label>Min games on hero</label><input type="number" id="minGames" value="5" min="1" style="min-width:90px;width:90px"></div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="results">
+  <div class="panel" style="margin-top:0">
+    <h2>Recommendations</h2>
+    <div id="out"><div class="empty">Load a player and set your role. Suggestions update as you fill the board.</div></div>
+    <div class="notice" id="synNotice"></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- HERO PICKER -->
+<div class="overlay" id="overlay">
+  <div class="picker">
+    <div class="top">
+      <input type="text" id="search" placeholder="Search hero…" autocomplete="off">
+      <button class="ghost" id="closePicker">Close</button>
+    </div>
+    <div class="grid" id="heroGrid"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const OD = "https://api.opendota.com/api";
+const CDN = n => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${n}.png`;
+const STEAM64_OFFSET = 76561197960265728n;
+
+/* Curated position map: heroId -> playable positions. Unlisted heroes count for all roles. */
+const POS = {
+1:[1],2:[3],3:[4,5],4:[1,2,3],5:[5],6:[1],7:[4,5],8:[1],9:[2,4],10:[1],11:[2],12:[1],13:[2,3],
+14:[4,2],15:[1,2,3],16:[3,4],17:[2],18:[1,3],19:[2,3,4],20:[4,5],21:[2,3,4],22:[2,4],23:[2,3,4],
+25:[2,4,5],26:[4,5],27:[4,5],28:[3,4],29:[3,5],30:[4,5],31:[5],32:[1,4],33:[3,4],34:[2],35:[1,2,4],
+36:[2,3,4],37:[4,5],38:[3,4],39:[2],40:[3,4,5],41:[1],42:[1,3],43:[2,3],44:[1],45:[2,4,5],46:[1,2],
+47:[2,3],48:[1,2],49:[1,2,3],50:[4,5],51:[3,4],52:[2,3,4],53:[2,3,4],54:[1],55:[3],56:[1,2,4],
+57:[3,4,5],58:[3,4,5],59:[2,3],60:[3,4],61:[2,3],62:[4],63:[1,3,4],64:[4,5],65:[3,4],66:[4,5],
+67:[1],68:[4,5],69:[3],70:[1,2],71:[3,4],72:[1,4],73:[1,2],74:[2],75:[4,5],76:[2,3],77:[1,3],
+78:[3,4],79:[4,5],80:[1,2],81:[1,3],82:[1,2],83:[4,5],84:[4,5],85:[3,4,5],86:[4,5],87:[4,5],
+88:[3,4],89:[1,5],90:[4,5],91:[4,5],92:[2,3,4],93:[1],94:[1,2],95:[1],96:[3],97:[2,3,4],98:[2,3],
+99:[1,3],100:[3,4],101:[2,4,5],102:[3,4,5],103:[4,5],104:[3,4],105:[4,5],106:[2,3],107:[3,4],
+108:[3],109:[1],110:[4,5],111:[4,5],112:[4,5],113:[1,2],114:[1,2,4],119:[4,5],120:[2,3,4],
+121:[4,5],123:[4,5],126:[2,4],128:[4,5],129:[3],131:[4,5],135:[3,5],136:[1,3,4],137:[3,4],
+138:[1,2],145:[1,2]
+};
+const ROLE_NAMES = {0:"Any role",1:"Pos 1 · Carry",2:"Pos 2 · Mid",3:"Pos 3 · Offlane",4:"Pos 4 · Soft Support",5:"Pos 5 · Hard Support"};
+
+const S = {
+  heroes: new Map(),          // id -> {id, short, name}
+  player: null,               // {id, name, avatar}
+  pool: new Map(),            // heroId -> {games, win}
+  role: 0,
+  allies: [null,null,null,null],
+  enemies: [null,null,null,null,null],
+  matchupCache: new Map(),    // enemyId -> Map(candidateId -> {g, candWins})
+  synergyCache: new Map(),    // allyId  -> Map(candidateId -> synergyPts)
+  stratzDead: false,
+  pickTarget: null,
+};
+
+const $ = id => document.getElementById(id);
+const el = (t,c,h) => {const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
+const shrunkWR = (wins, games, k) => (wins + 0.5*k) / (games + k);   // Bayesian shrink toward 50%
+
+/* ---------- bootstrap ---------- */
+async function loadHeroes(){
+  const r = await fetch(`${OD}/heroes`);
+  if(!r.ok) throw new Error("OpenDota /heroes failed");
+  for(const h of await r.json()){
+    S.heroes.set(h.id,{id:h.id, short:h.name.replace("npc_dota_hero_",""), name:h.localized_name});
+  }
+}
+
+function heroPositions(id){ return POS[id] || [1,2,3,4,5]; }
+
+/* ---------- player ---------- */
+async function loadPlayer(){
+  const raw = $("acct").value.trim();
+  const st = $("status");
+  if(!raw){ st.textContent="Enter an account ID."; st.className="status err"; return; }
+  let id;
+  try{
+    let n = BigInt(raw.replace(/\D/g,""));
+    if(n > STEAM64_OFFSET) n -= STEAM64_OFFSET;   // steam64 -> steam32
+    id = n.toString();
+  }catch{ st.textContent="That doesn't look like a numeric ID."; st.className="status err"; return; }
+
+  st.textContent="Loading…"; st.className="status";
+  try{
+    const [pr, hr] = await Promise.all([
+      fetch(`${OD}/players/${id}`).then(r=>r.json()),
+      fetch(`${OD}/players/${id}/heroes`).then(r=>r.json()),
+    ]);
+    if(!pr.profile){ st.textContent="Player not found on OpenDota."; st.className="status err"; return; }
+    S.player = {id, name:pr.profile.personaname, avatar:pr.profile.avatarfull};
+    S.pool.clear();
+    for(const h of hr){ const g=+h.games; if(g>0) S.pool.set(+h.hero_id,{games:g,win:+h.win}); }
+    const p=$("profile");
+    p.style.display="flex";
+    p.innerHTML=`<img src="${S.player.avatar}" alt=""><div><div class="nm">${escapeHtml(S.player.name)}</div><div class="sub">${id} · ${S.pool.size} heroes played</div></div>`;
+    if(S.pool.size===0){
+      st.textContent="No hero data — match data is probably private (enable Expose Public Match Data, then play a game).";
+      st.className="status err";
+    }else{
+      st.textContent="Player loaded."; st.className="status ok";
+    }
+    recommend();
+  }catch(e){
+    st.textContent="Network error talking to OpenDota: "+e.message; st.className="status err";
+  }
+}
+
+/* ---------- counters (OpenDota) ---------- */
+async function getMatchups(enemyId){
+  if(S.matchupCache.has(enemyId)) return S.matchupCache.get(enemyId);
+  const r = await fetch(`${OD}/heroes/${enemyId}/matchups`);
+  const map = new Map();
+  if(r.ok){
+    for(const m of await r.json()){
+      // m.wins = wins of ENEMY hero vs m.hero_id → candidate wins = games - wins
+      map.set(+m.hero_id, {g:+m.games_played, candWins:+m.games_played - +m.wins});
+    }
+  }
+  S.matchupCache.set(enemyId, map);
+  return map;
+}
+
+/* ---------- synergy (via /synergy serverless proxy) ---------- */
+async function getSynergy(allyId){
+  if(S.synergyCache.has(allyId)) return S.synergyCache.get(allyId);
+  const map = new Map();
+  if(S.stratzDead){ S.synergyCache.set(allyId,map); return map; }
+  try{
+    const r = await fetch(`/synergy?hero=${allyId}`);
+    if(r.status===503){
+      S.stratzDead = true;
+      $("synNotice").textContent = "Synergy isn't configured on this deployment — scoring on comfort + counters only.";
+    }else if(!r.ok){
+      throw new Error("HTTP "+r.status);
+    }else{
+      for(const w of await r.json()) map.set(+w.heroId2, +w.synergy);
+    }
+  }catch(e){
+    S.stratzDead = true;
+    $("synNotice").textContent = "Synergy unavailable ("+e.message+") — scoring on comfort + counters only.";
+  }
+  S.synergyCache.set(allyId,map);
+  return map;
+}
+
+/* ---------- scoring ---------- */
+async function recommend(){
+  const out = $("out");
+  if(!S.player || S.pool.size===0){
+    out.innerHTML = `<div class="empty">Load a player and set your role. Suggestions update as you fill the board.</div>`;
+    return;
+  }
+  out.innerHTML = `<div class="empty">Forging…</div>`;
+
+  const minGames = Math.max(1, +$("minGames").value || 5);
+  const wP=+$("wp").value, wC=+$("wc").value, wS=+$("ws").value;
+  const allies  = S.allies.filter(Boolean);
+  const enemies = S.enemies.filter(Boolean);
+  const taken   = new Set([...allies,...enemies]);
+
+  const enemyMaps = await Promise.all(enemies.map(getMatchups));
+  const allyMaps  = await Promise.all(allies.map(getSynergy));
+
+  const rows = [];
+  for(const [hid,st] of S.pool){
+    if(st.games < minGames) continue;
+    if(taken.has(hid)) continue;
+    if(S.role!==0 && !heroPositions(hid).includes(S.role)) continue;
+    if(!S.heroes.has(hid)) continue;
+
+    const comfort = (shrunkWR(st.win, st.games, 20) - 0.5) * 100;       // % pts vs even
+
+    let counter = 0;
+    if(enemyMaps.length){
+      let sum = 0;
+      for(const m of enemyMaps){
+        const e = m.get(hid);
+        sum += e ? (shrunkWR(e.candWins, e.g, 30) - 0.5)*100 : 0;
+      }
+      counter = sum / enemyMaps.length;
+    }
+
+    let synergy = 0, synSamples = 0;
+    for(const m of allyMaps){
+      if(m.has(hid)){ synergy += m.get(hid); synSamples++; }
+    }
+    synergy = synSamples ? synergy/synSamples : 0;
+
+    const score = wP*comfort + wC*counter + wS*synergy;
+    rows.push({hid, st, comfort, counter, synergy, score});
+  }
+
+  rows.sort((a,b)=>b.score-a.score);
+  renderResults(rows.slice(0,8), {hasEnemies:enemies.length>0, hasSynergy:allyMaps.some(m=>m.size>0)});
+}
+
+function renderResults(rows, ctx){
+  const out=$("out");
+  if(rows.length===0){
+    out.innerHTML=`<div class="empty">No eligible heroes — lower the min-games threshold or widen the role.</div>`;
+    return;
+  }
+  out.innerHTML="";
+  const maxAbs = Math.max(8, ...rows.map(r=>Math.abs(r.comfort)+Math.abs(r.counter)+Math.abs(r.synergy)));
+  rows.forEach((r,i)=>{
+    const h=S.heroes.get(r.hid);
+    const wrRaw=(100*r.st.win/r.st.games).toFixed(0);
+    const seg=(v)=>Math.max(0, Math.abs(v)/maxAbs*100);
+    const card=el("div","card");
+    card.style.animationDelay=(i*40)+"ms";
+    card.innerHTML=`
+      <img src="${CDN(h.short)}" alt="${h.name}" loading="lazy">
+      <div>
+        <div class="nm">${i+1}. ${h.name}</div>
+        <div class="meta">${r.st.games} games · ${wrRaw}% WR · ${heroPositions(r.hid).map(p=>"P"+p).join("/")}</div>
+        <div class="blade" title="contribution by component">
+          <div class="seg comfort" style="width:${seg(r.comfort)}%"></div>
+          <div class="seg counter ${r.counter>=0?'pos':''}" style="width:${seg(r.counter)}%"></div>
+          <div class="seg synergy" style="width:${seg(r.synergy)}%"></div>
+        </div>
+        <div class="legend">
+          <span class="c">comfort <b>${fmt(r.comfort)}</b></span>
+          ${ctx.hasEnemies?`<span class="k ${r.counter<0?'neg':''}">counters <b>${fmt(r.counter)}</b></span>`:""}
+          ${ctx.hasSynergy?`<span class="s ${r.synergy<0?'neg':''}">synergy <b>${fmt(r.synergy)}</b></span>`:""}
+        </div>
+      </div>
+      <div class="score">${fmt(r.score)}<small>VERDICT</small></div>`;
+    out.appendChild(card);
+  });
+}
+const fmt = v => (v>=0?"+":"")+v.toFixed(1);
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+/* ---------- board / picker UI ---------- */
+function renderRoles(){
+  const box=$("roles"); box.innerHTML="";
+  for(const k of [0,1,2,3,4,5]){
+    const b=el("button","role"+(S.role===k?" active":""),ROLE_NAMES[k]);
+    b.onclick=()=>{S.role=k;renderRoles();recommend();};
+    box.appendChild(b);
+  }
+}
+function renderSlots(){
+  const draw=(boxId, arr, side)=>{
+    const box=$(boxId); box.innerHTML="";
+    arr.forEach((hid,idx)=>{
+      const s=el("div","slot"+(hid?" filled":""), hid?"":"+");
+      s.setAttribute("role","button"); s.tabIndex=0;
+      if(hid){
+        const h=S.heroes.get(hid);
+        s.innerHTML=`<img src="${CDN(h.short)}" alt="${h.name}" title="${h.name}"><span class="x">×</span>`;
+        s.querySelector(".x").onclick=(e)=>{e.stopPropagation(); arr[idx]=null; renderSlots(); recommend();};
+      }
+      const open=()=>{S.pickTarget={arr,idx}; openPicker();};
+      s.onclick=open;
+      s.onkeydown=e=>{if(e.key==="Enter")open();};
+      box.appendChild(s);
+    });
+  };
+  draw("allySlots",S.allies);
+  draw("enemySlots",S.enemies);
+}
+function openPicker(){
+  $("overlay").classList.add("open");
+  $("search").value=""; renderGrid(""); $("search").focus();
+}
+function closePicker(){ $("overlay").classList.remove("open"); }
+function renderGrid(q){
+  const grid=$("heroGrid"); grid.innerHTML="";
+  const taken=new Set([...S.allies,...S.enemies].filter(Boolean));
+  const list=[...S.heroes.values()]
+    .filter(h=>!taken.has(h.id) && h.name.toLowerCase().includes(q.toLowerCase()))
+    .sort((a,b)=>a.name.localeCompare(b.name));
+  for(const h of list){
+    const c=el("div","cell",`<img src="${CDN(h.short)}" alt="" loading="lazy"><div>${h.name}</div>`);
+    c.onclick=()=>{
+      S.pickTarget.arr[S.pickTarget.idx]=h.id;
+      closePicker(); renderSlots(); recommend();
+    };
+    grid.appendChild(c);
+  }
+}
+
+/* ---------- wiring ---------- */
+$("steamBtn").onclick=()=>{ location.href="/auth"; };
+$("signOutBtn").onclick=()=>{
+  try{ localStorage.removeItem("df_acct"); }catch(e){}
+  location.href = location.pathname;   // strip ?id and reload
+};
+$("loadBtn").onclick=loadPlayer;
+$("acct").addEventListener("keydown",e=>{if(e.key==="Enter")loadPlayer();});
+$("closePicker").onclick=closePicker;
+$("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closePicker();});
+$("search").addEventListener("input",e=>renderGrid(e.target.value));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closePicker();});
+for(const id of ["wp","wc","ws"]){
+  $(id).addEventListener("input",()=>{ $(id+"V").textContent=(+$(id).value).toFixed(1); recommend(); });
+}
+$("minGames").addEventListener("change",recommend);
+
+/* persistence: remember this browser's account; support ?id= share links / Steam login redirect */
+function persist(){ try{ localStorage.setItem("df_acct", $("acct").value.trim()); }catch(e){} }
+$("loadBtn").addEventListener("click", persist);
+
+(async function init(){
+  renderRoles(); renderSlots();
+  let acct = "";
+  try{
+    acct = new URLSearchParams(location.search).get("id") || localStorage.getItem("df_acct") || "";
+  }catch(e){}
+  $("acct").value = acct;
+  try{ await loadHeroes(); }
+  catch(e){ $("status").textContent="Couldn't reach OpenDota — check your connection."; $("status").className="status err"; return; }
+  if(acct){
+    persist();
+    $("signOutBtn").style.display="inline-block";
+    loadPlayer();
+  }
+})();
+</script>
+</body>
+</html>
