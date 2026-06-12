@@ -150,7 +150,26 @@ input[type=range]{accent-color:var(--brass);width:160px}
 .legend .c{color:var(--brass)}
 .legend .k{color:#d98b3a}
 .legend .s{color:var(--radiant)}
+.legend .m{color:#7da7d9}
+.seg.meta{background:#7da7d9}
 .neg{color:var(--dire)!important}
+.why{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5}
+.why b{color:var(--parchment);font-weight:500}
+.patchlbl{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:none;margin-left:10px}
+
+/* item builds */
+.itemsBtn{margin-top:8px;font-size:12px;padding:5px 12px}
+.itemsPanel{grid-column:1/-1;border-top:1px solid var(--line);margin-top:10px;padding-top:12px;display:none}
+.itemsPanel.open{display:block}
+.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.phase h3{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.14em;color:var(--brass);font-weight:600;margin-bottom:6px;text-transform:uppercase}
+.irow{display:flex;align-items:center;gap:7px;margin-bottom:4px;font-size:13px}
+.irow img{width:30px;height:22px;object-fit:cover;border-radius:3px;border:1px solid var(--line)}
+.irow .ct{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto}
+.sit{margin-top:12px}
+.sit h3{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.14em;color:var(--dire);font-weight:600;margin-bottom:6px;text-transform:uppercase}
+.chip{display:inline-block;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:5px 10px;font-size:12px;margin:0 6px 6px 0;color:var(--parchment)}
+.chip b{color:#d98b3a;font-weight:600}
 
 .notice{font-size:13px;color:var(--muted);margin-top:8px;font-style:italic}
 @media (max-width:760px){
@@ -171,7 +190,7 @@ input[type=range]{accent-color:var(--brass);width:160px}
 
 <header>
   <h1>DRAFT<span>FORGE</span></h1>
-  <div class="tag">Pick suggestions from <em>your</em> hero pool — comfort × counters × synergy</div>
+  <div class="tag">Pick suggestions from <em>your</em> hero pool — comfort × counters × synergy × meta</div>
 </header>
 
 <!-- CONNECT -->
@@ -221,8 +240,9 @@ input[type=range]{accent-color:var(--brass);width:160px}
   <h2>Tuning</h2>
   <div class="tuning">
     <div class="field"><label>Comfort weight <span class="val" id="wpV">1.0</span></label><input type="range" id="wp" min="0" max="2" step="0.1" value="1.0"></div>
-    <div class="field"><label>Counter weight <span class="val" id="wcV">1.2</span></label><input type="range" id="wc" min="0" max="2" step="0.1" value="1.2"></div>
-    <div class="field"><label>Synergy weight <span class="val" id="wsV">0.8</span></label><input type="range" id="ws" min="0" max="2" step="0.1" value="0.8"></div>
+    <div class="field"><label>Counter weight <span class="val" id="wcV">0.9</span></label><input type="range" id="wc" min="0" max="2" step="0.1" value="0.9"></div>
+    <div class="field"><label>Synergy weight <span class="val" id="wsV">0.6</span></label><input type="range" id="ws" min="0" max="2" step="0.1" value="0.6"></div>
+    <div class="field"><label>Meta weight <span class="val" id="wmV">0.7</span></label><input type="range" id="wm" min="0" max="2" step="0.1" value="0.7"></div>
     <div class="field"><label>Min games on hero</label><input type="number" id="minGames" value="5" min="1" style="min-width:90px;width:90px"></div>
   </div>
 </div>
@@ -230,7 +250,7 @@ input[type=range]{accent-color:var(--brass);width:160px}
 <!-- RESULTS -->
 <div class="results">
   <div class="panel" style="margin-top:0">
-    <h2>Recommendations</h2>
+    <h2>Recommendations<span class="patchlbl" id="patchLbl"></span></h2>
     <div id="out"><div class="empty">Load a player and set your role. Suggestions update as you fill the board.</div></div>
     <div class="notice" id="synNotice"></div>
   </div>
@@ -275,6 +295,7 @@ const ROLE_NAMES = {0:"Any role",1:"Pos 1 · Carry",2:"Pos 2 · Mid",3:"Pos 3 ·
 
 const S = {
   heroes: new Map(),          // id -> {id, short, name}
+  meta: new Map(),            // id -> {wr (0-100), pick (0-100 % of matches)}
   player: null,               // {id, name, avatar}
   pool: new Map(),            // heroId -> {games, win}
   role: 0,
@@ -282,9 +303,21 @@ const S = {
   enemies: [null,null,null,null,null],
   matchupCache: new Map(),    // enemyId -> Map(candidateId -> {g, candWins})
   synergyCache: new Map(),    // allyId  -> Map(candidateId -> synergyPts)
+  itemPopCache: new Map(),    // heroId -> itemPopularity payload
+  itemDb: null,               // itemId -> {name, key}
   stratzDead: false,
   pickTarget: null,
 };
+
+/* Threat categories for situational item advice (enemy heroId sets) */
+const THREATS = [
+  {ids:[12,89,109,81], label:"Illusions", advice:"<b>Battle Fury / Maelstrom / Mjollnir</b> — cleave & chain clear illusions"},
+  {ids:[61,77,53,38,92,66,33,42,85,37], label:"Summons", advice:"<b>AoE damage / Maelstrom</b> — clear summons fast, deny the push"},
+  {ids:[44,21,61], label:"Evasion", advice:"<b>Monkey King Bar / Bloodthorn</b> — true strike through evasion"},
+  {ids:[22,52,25,26,101,34,17,39,13,76,74,43,64], label:"Heavy magic", advice:"<b>BKB / Pipe of Insight / Glimmer Cape</b> — magic defense", min:2},
+  {ids:[32,62,56,88,63,16,93], label:"Invisibility", advice:"<b>Dust / Sentries / Gem</b> — someone must carry detection"},
+  {ids:[59,42,73,10,36,50,111,102,91,83,54,43], label:"Heavy healing", advice:"<b>Spirit Vessel / Shiva's Guard / Eye of Skadi</b> — healing reduction", min:2},
+];
 
 const $ = id => document.getElementById(id);
 const el = (t,c,h) => {const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
@@ -292,11 +325,35 @@ const shrunkWR = (wins, games, k) => (wins + 0.5*k) / (games + k);   // Bayesian
 
 /* ---------- bootstrap ---------- */
 async function loadHeroes(){
-  const r = await fetch(`${OD}/heroes`);
-  if(!r.ok) throw new Error("OpenDota /heroes failed");
-  for(const h of await r.json()){
+  const r = await fetch(`${OD}/heroStats`);
+  if(!r.ok) throw new Error("OpenDota /heroStats failed");
+  const data = await r.json();
+  let totalPicks = 0;
+  const raw = [];
+  for(const h of data){
     S.heroes.set(h.id,{id:h.id, short:h.name.replace("npc_dota_hero_",""), name:h.localized_name});
+    // aggregate ranked pubs across brackets 1..8 (Herald → Immortal), current patch window
+    let picks=0, wins=0;
+    for(let b=1;b<=8;b++){ picks += (+h[b+"_pick"]||0); wins += (+h[b+"_win"]||0); }
+    totalPicks += picks;
+    raw.push({id:h.id, picks, wins});
   }
+  const totalMatches = totalPicks/10 || 1;
+  for(const x of raw){
+    S.meta.set(x.id, {
+      wr:   x.picks ? 100*x.wins/x.picks : 50,
+      pick: 100*x.picks/totalMatches,
+    });
+  }
+  // patch label (best effort)
+  try{
+    const pr = await fetch(`${OD}/constants/patch`);
+    if(pr.ok){
+      const patches = await pr.json();
+      const latest = patches[patches.length-1];
+      if(latest?.name) $("patchLbl").textContent = "patch "+latest.name+" · ranked pubs";
+    }
+  }catch(e){}
 }
 
 function heroPositions(id){ return POS[id] || [1,2,3,4,5]; }
@@ -386,7 +443,7 @@ async function recommend(){
   out.innerHTML = `<div class="empty">Forging…</div>`;
 
   const minGames = Math.max(1, +$("minGames").value || 5);
-  const wP=+$("wp").value, wC=+$("wc").value, wS=+$("ws").value;
+  const wP=+$("wp").value, wC=+$("wc").value, wS=+$("ws").value, wM=+$("wm").value;
   const allies  = S.allies.filter(Boolean);
   const enemies = S.enemies.filter(Boolean);
   const taken   = new Set([...allies,...enemies]);
@@ -404,23 +461,34 @@ async function recommend(){
     const comfort = (shrunkWR(st.win, st.games, 20) - 0.5) * 100;       // % pts vs even
 
     let counter = 0;
+    const vsDetail = [];   // {name, adv} per enemy pick
     if(enemyMaps.length){
       let sum = 0;
-      for(const m of enemyMaps){
+      enemyMaps.forEach((m,i)=>{
         const e = m.get(hid);
-        sum += e ? (shrunkWR(e.candWins, e.g, 30) - 0.5)*100 : 0;
-      }
+        const adv = e ? (shrunkWR(e.candWins, e.g, 30) - 0.5)*100 : 0;
+        sum += adv;
+        vsDetail.push({name:S.heroes.get(enemies[i])?.name||"?", adv});
+      });
       counter = sum / enemyMaps.length;
     }
 
     let synergy = 0, synSamples = 0;
-    for(const m of allyMaps){
-      if(m.has(hid)){ synergy += m.get(hid); synSamples++; }
-    }
+    const withDetail = []; // {name, adv} per ally pick
+    allyMaps.forEach((m,i)=>{
+      if(m.has(hid)){
+        const adv = m.get(hid);
+        synergy += adv; synSamples++;
+        withDetail.push({name:S.heroes.get(allies[i])?.name||"?", adv});
+      }
+    });
     synergy = synSamples ? synergy/synSamples : 0;
 
-    const score = wP*comfort + wC*counter + wS*synergy;
-    rows.push({hid, st, comfort, counter, synergy, score});
+    const ms = S.meta.get(hid) || {wr:50, pick:0};
+    const meta = ms.wr - 50;          // % pts vs even, current patch ranked pubs
+
+    const score = wP*comfort + wC*counter + wS*synergy + wM*meta;
+    rows.push({hid, st, comfort, counter, synergy, meta, ms, vsDetail, withDetail, score});
   }
 
   rows.sort((a,b)=>b.score-a.score);
@@ -434,7 +502,7 @@ function renderResults(rows, ctx){
     return;
   }
   out.innerHTML="";
-  const maxAbs = Math.max(8, ...rows.map(r=>Math.abs(r.comfort)+Math.abs(r.counter)+Math.abs(r.synergy)));
+  const maxAbs = Math.max(8, ...rows.map(r=>Math.abs(r.comfort)+Math.abs(r.counter)+Math.abs(r.synergy)+Math.abs(r.meta)));
   rows.forEach((r,i)=>{
     const h=S.heroes.get(r.hid);
     const wrRaw=(100*r.st.win/r.st.games).toFixed(0);
@@ -445,21 +513,119 @@ function renderResults(rows, ctx){
       <img src="${CDN(h.short)}" alt="${h.name}" loading="lazy">
       <div>
         <div class="nm">${i+1}. ${h.name}</div>
-        <div class="meta">${r.st.games} games · ${wrRaw}% WR · ${heroPositions(r.hid).map(p=>"P"+p).join("/")}</div>
+        <div class="meta">You: ${r.st.games} games · ${wrRaw}% WR &nbsp;|&nbsp; Patch: ${r.ms.wr.toFixed(1)}% WR · ${r.ms.pick.toFixed(1)}% picked &nbsp;|&nbsp; ${heroPositions(r.hid).map(p=>"P"+p).join("/")}</div>
         <div class="blade" title="contribution by component">
           <div class="seg comfort" style="width:${seg(r.comfort)}%"></div>
           <div class="seg counter ${r.counter>=0?'pos':''}" style="width:${seg(r.counter)}%"></div>
           <div class="seg synergy" style="width:${seg(r.synergy)}%"></div>
+          <div class="seg meta" style="width:${seg(r.meta)}%"></div>
         </div>
         <div class="legend">
           <span class="c">comfort <b>${fmt(r.comfort)}</b></span>
           ${ctx.hasEnemies?`<span class="k ${r.counter<0?'neg':''}">counters <b>${fmt(r.counter)}</b></span>`:""}
           ${ctx.hasSynergy?`<span class="s ${r.synergy<0?'neg':''}">synergy <b>${fmt(r.synergy)}</b></span>`:""}
+          <span class="m ${r.meta<0?'neg':''}">meta <b>${fmt(r.meta)}</b></span>
         </div>
+        <div class="why">${whyText(r)}</div>
+        <button class="ghost itemsBtn" data-hid="${r.hid}">⚒ Item build</button>
       </div>
-      <div class="score">${fmt(r.score)}<small>VERDICT</small></div>`;
+      <div class="score">${fmt(r.score)}<small>VERDICT</small></div>
+      <div class="itemsPanel" id="ip-${r.hid}"></div>`;
+    card.querySelector(".itemsBtn").onclick = (e)=>toggleItems(e.target, r.hid);
     out.appendChild(card);
   });
+}
+
+/* ---------- "why this pick" generator ---------- */
+function whyText(r){
+  const parts = [];
+  const myWR = 100*r.st.win/r.st.games;
+  if(r.st.games >= 50 && myWR >= 55)      parts.push(`One of your strongest heroes — <b>${myWR.toFixed(0)}%</b> over <b>${r.st.games}</b> games is a real edge.`);
+  else if(r.st.games >= 30 && myWR >= 52) parts.push(`Proven comfort: <b>${myWR.toFixed(0)}%</b> across <b>${r.st.games}</b> games.`);
+  else if(myWR >= 55)                     parts.push(`Promising record (<b>${myWR.toFixed(0)}%</b>) but only ${r.st.games} games — small sample.`);
+  else                                    parts.push(`<b>${r.st.games}</b> games at <b>${myWR.toFixed(0)}%</b> for you.`);
+
+  const bestVs = [...r.vsDetail].sort((a,b)=>b.adv-a.adv)[0];
+  const worstVs = [...r.vsDetail].sort((a,b)=>a.adv-b.adv)[0];
+  if(bestVs && bestVs.adv >= 1)   parts.push(`Strong into <b>${bestVs.name}</b> (${fmt(bestVs.adv)} matchup edge).`);
+  if(worstVs && worstVs.adv <= -1.5 && worstVs !== bestVs) parts.push(`Watch out: weak into <b>${worstVs.name}</b> (${fmt(worstVs.adv)}).`);
+
+  const bestWith = [...r.withDetail].sort((a,b)=>b.adv-a.adv)[0];
+  if(bestWith && bestWith.adv >= 1) parts.push(`Pairs well with your <b>${bestWith.name}</b> (${fmt(bestWith.adv)} synergy).`);
+
+  if(r.ms.wr >= 52)      parts.push(`Thriving this patch at <b>${r.ms.wr.toFixed(1)}%</b> pub winrate.`);
+  else if(r.ms.wr <= 47) parts.push(`Below the curve this patch (<b>${r.ms.wr.toFixed(1)}%</b> pub WR) — your comfort has to carry it.`);
+  if(r.ms.wr >= 51 && r.ms.pick <= 6) parts.push(`Under-picked sleeper (${r.ms.pick.toFixed(1)}% pick rate).`);
+
+  return parts.join(" ");
+}
+
+/* ---------- item builds ---------- */
+async function loadItemDb(){
+  if(S.itemDb) return S.itemDb;
+  const r = await fetch(`${OD}/constants/items`);
+  if(!r.ok) throw new Error("items db failed");
+  const data = await r.json();
+  S.itemDb = new Map();
+  for(const [key,it] of Object.entries(data)){
+    if(key.startsWith("recipe_")) continue;
+    S.itemDb.set(it.id, {name: it.dname || key, key});
+  }
+  return S.itemDb;
+}
+async function getItemPop(hid){
+  if(S.itemPopCache.has(hid)) return S.itemPopCache.get(hid);
+  const r = await fetch(`${OD}/heroes/${hid}/itemPopularity`);
+  const data = r.ok ? await r.json() : null;
+  S.itemPopCache.set(hid, data);
+  return data;
+}
+const ITEM_IMG = key => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/${key}.png`;
+
+function situationalAdvice(){
+  const enemies = S.enemies.filter(Boolean);
+  const hits = [];
+  for(const t of THREATS){
+    const matched = enemies.filter(e=>t.ids.includes(e)).map(e=>S.heroes.get(e)?.name||"?");
+    if(matched.length >= (t.min||1)){
+      hits.push(`<span class="chip">${t.advice} <span style="color:var(--muted)">(vs ${matched.join(", ")})</span></span>`);
+    }
+  }
+  return hits;
+}
+
+async function toggleItems(btn, hid){
+  const panel = $("ip-"+hid);
+  if(panel.classList.contains("open")){ panel.classList.remove("open"); return; }
+  panel.classList.add("open");
+  panel.innerHTML = `<div class="empty" style="padding:10px">Loading builds…</div>`;
+  try{
+    const [db, pop] = await Promise.all([loadItemDb(), getItemPop(hid)]);
+    if(!pop){ panel.innerHTML = `<div class="empty" style="padding:10px">No item data for this hero.</div>`; return; }
+    const PHASES = [["start_game_items","Starting"],["early_game_items","Early"],["mid_game_items","Mid game"],["late_game_items","Late game"]];
+    let html = `<div class="phases">`;
+    for(const [key,label] of PHASES){
+      const items = Object.entries(pop[key]||{})
+        .map(([id,ct])=>({it:db.get(+id), ct}))
+        .filter(x=>x.it)
+        .sort((a,b)=>b.ct-a.ct)
+        .slice(0,5);
+      html += `<div class="phase"><h3>${label}</h3>` + items.map(x=>
+        `<div class="irow"><img src="${ITEM_IMG(x.it.key)}" alt="" loading="lazy">${x.it.name}<span class="ct">${x.ct}</span></div>`
+      ).join("") + `</div>`;
+    }
+    html += `</div>`;
+    const sit = situationalAdvice();
+    if(sit.length){
+      html += `<div class="sit"><h3>Against this lineup</h3>${sit.join("")}</div>`;
+    }else if(S.enemies.filter(Boolean).length===0){
+      html += `<div class="sit"><h3>Against this lineup</h3><span class="chip" style="color:var(--muted)">Add enemy heroes to the board for situational item advice.</span></div>`;
+    }
+    html += `<div class="notice" style="margin-top:8px">Most-built items in recent high-skill pubs (counts = builds observed).</div>`;
+    panel.innerHTML = html;
+  }catch(e){
+    panel.innerHTML = `<div class="empty" style="padding:10px">Couldn't load item data (${e.message}).</div>`;
+  }
 }
 const fmt = v => (v>=0?"+":"")+v.toFixed(1);
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -526,7 +692,7 @@ $("closePicker").onclick=closePicker;
 $("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closePicker();});
 $("search").addEventListener("input",e=>renderGrid(e.target.value));
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closePicker();});
-for(const id of ["wp","wc","ws"]){
+for(const id of ["wp","wc","ws","wm"]){
   $(id).addEventListener("input",()=>{ $(id+"V").textContent=(+$(id).value).toFixed(1); recommend(); });
 }
 $("minGames").addEventListener("change",recommend);
