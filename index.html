@@ -313,11 +313,158 @@ const S = {
 const THREATS = [
   {ids:[12,89,109,81], label:"Illusions", advice:"<b>Battle Fury / Maelstrom / Mjollnir</b> — cleave & chain clear illusions"},
   {ids:[61,77,53,38,92,66,33,42,85,37], label:"Summons", advice:"<b>AoE damage / Maelstrom</b> — clear summons fast, deny the push"},
-  {ids:[44,21,61], label:"Evasion", advice:"<b>Monkey King Bar / Bloodthorn</b> — true strike through evasion"},
+  {ids:[44,21,78], label:"Evasion", advice:"<b>Monkey King Bar / Bloodthorn</b> — true strike through evasion"},
   {ids:[22,52,25,26,101,34,17,39,13,76,74,43,64], label:"Heavy magic", advice:"<b>BKB / Pipe of Insight / Glimmer Cape</b> — magic defense", min:2},
   {ids:[32,62,56,88,63,16,93], label:"Invisibility", advice:"<b>Dust / Sentries / Gem</b> — someone must carry detection"},
   {ids:[59,42,73,10,36,50,111,102,91,83,54,43], label:"Heavy healing", advice:"<b>Spirit Vessel / Shiva's Guard / Eye of Skadi</b> — healing reduction", min:2},
 ];
+
+/* ---------- mechanics knowledge base ----------
+   heroId -> {tag: "Signature Ability"}. Used to generate *reasons* for matchups. */
+const MECH = {
+  1:{mana_burn:"Mana Break",magic_resist:"Counterspell",mobility:"Blink"},
+  2:{pierce_control:"Berserker's Call"},
+  3:{channel_ult:"Fiend's Grip",lockdown:"Fiend's Grip"},
+  5:{channel_ult:"Freezing Field",magic_burst:"Freezing Field"},
+  6:{silence:"Gust",heavy_physical:"Marksmanship"},
+  7:{aoe_clear:"Echo Slam",big_ult:"Echo Slam"},
+  8:{spell_immune_ability:"Blade Fury",heal_heavy:"Healing Ward"},
+  10:{heal_heavy:"Attribute Shift",mobility:"Waveform"},
+  11:{magic_burst:"Requiem of Souls"},
+  12:{illu:"Juxtapose"},
+  13:{mobility:"Phase Shift",silence:"Waning Rift",combo_caster:"spell combo"},
+  15:{dmg_steal:"Static Link"},
+  17:{mobility:"Ball Lightning",mana_dependent:"Ball Lightning",magic_burst:"spell combo"},
+  19:{magic_burst:"Avalanche + Toss"},
+  21:{evasion:"Windrun",lockdown:"Shackleshot",heavy_physical:"Focus Fire"},
+  22:{magic_burst:"Thundergod's Wrath",mana_dependent:"Arc Lightning spam"},
+  25:{magic_burst:"Laguna Blade"},
+  26:{lockdown:"Hex",mana_burn:"Mana Drain",magic_burst:"Finger of Death"},
+  27:{lockdown:"Hex + Shackles",channel_ult:"Shackles"},
+  28:{armor_reduction:"Corrosive Haze",lockdown:"Slithereen Crush"},
+  29:{big_ult:"Ravage",tanky:"Kraken Shell"},
+  30:{channel_ult:"Death Ward",heal_heavy:"Voodoo Restoration"},
+  32:{invis:"Cloak and Dagger",silence:"Smoke Screen"},
+  33:{channel_ult:"Black Hole",big_ult:"Black Hole",summon:"Eidolons"},
+  34:{mana_dependent:"Rearm",magic_burst:"Laser + Missiles",combo_caster:"Rearm combos"},
+  36:{heal_heavy:"Death Pulse"},
+  38:{summon:"Beasts",pierce_control:"Primal Roar"},
+  39:{mobility:"Blink",magic_burst:"Sonic Wave"},
+  41:{big_ult:"Chronosphere",mobility:"Time Walk"},
+  42:{reincarnate:"Reincarnation",heal_heavy:"Vampiric Spirit"},
+  43:{silence:"Silence",heal_heavy:"Exorcism healing"},
+  44:{evasion:"Blur",heavy_physical:"Coup de Grâce",passive_reliant:"Blur + Coup de Grâce"},
+  45:{ethereal:"Decrepify",caster_punish:"Nether Ward"},
+  46:{heavy_physical:"Meld strikes"},
+  47:{break:"Nethertoxin",tanky:"Corrosive Skin"},
+  49:{tanky:"Dragon Blood"},
+  50:{savior:"Shallow Grave",heal_heavy:"Shadow Wave"},
+  52:{magic_burst:"Pulse Nova",mana_dependent:"Pulse Nova"},
+  53:{summon:"Nature's Call"},
+  54:{spell_immune_ability:"Rage",heal_heavy:"Feast"},
+  55:{mirror:"Wall of Replica"},
+  56:{invis:"Skeleton Walk"},
+  57:{savior:"Guardian Angel",heal_heavy:"Purification"},
+  58:{summon:"enchanted creeps",atk_slow:"Untouchable",heal_heavy:"Nature's Attendants"},
+  59:{magic_resist:"Berserker's Blood",heal_heavy:"Berserker's Blood regen"},
+  60:{silence:"Crippling Fear"},
+  61:{summon:"Spiderlings"},
+  62:{invis:"Shadow Walk"},
+  63:{invis:"Shukuchi",mobility:"Time Lapse"},
+  64:{aoe_clear:"Macropyre + Dual Breath"},
+  65:{pierce_control:"Flaming Lasso"},
+  67:{tanky:"Dispersion"},
+  68:{heal_cut:"Ice Blast"},
+  69:{silence:"Doom"},
+  70:{heavy_physical:"Fury Swipes"},
+  71:{lockdown:"Charge of Darkness"},
+  72:{aoe_clear:"Flak Cannon"},
+  74:{combo_caster:"Invoke combos",summon:"Forge Spirits",mana_burn:"EMP"},
+  75:{silence:"Global Silence"},
+  76:{magic_burst:"Sanity's Eclipse",pure_dmg:"Arcane Orb"},
+  77:{summon:"Wolves"},
+  78:{evasion:"Drunken Brawler",big_ult:"Primal Split"},
+  79:{mirror:"Disruption illusions",dispel_enemy:"Demonic Purge"},
+  81:{illu:"Phantasm",lockdown:"Chaos Bolt"},
+  85:{summon:"Tombstone zombies"},
+  86:{spell_steal:"Spell Steal"},
+  87:{anti_blink:"Glimpse",lockdown:"Kinetic Field"},
+  88:{mana_burn:"Mana Burn",invis:"Vendetta",caster_punish:"Spiked Carapace"},
+  89:{illu:"Mirror Image",big_ult:"Song of the Siren setup"},
+  90:{aoe_clear:"Illuminate"},
+  91:{savior:"Relocate",heal_heavy:"Tether heal"},
+  93:{invis:"Shadow Dance",dispel:"Dark Pact",mobility:"Pounce"},
+  94:{mana_dependent:"Mana Shield",tanky:"Mana Shield"},
+  96:{tanky:"Return"},
+  97:{big_ult:"Reverse Polarity"},
+  98:{tanky:"Reactive Armor"},
+  99:{tanky:"Bristleback",passive_reliant:"Bristleback"},
+  101:{magic_burst:"Mystic Flare",silence:"Ancient Seal"},
+  102:{savior:"Borrowed Time",dispel:"Aphotic Shield",heal_heavy:"Mist Coil"},
+  104:{lockdown:"Duel",dispel:"Press the Attack"},
+  106:{mobility:"Fire Remnant"},
+  107:{silence:"Geomagnetic Grip",lockdown:"Boulder Smash"},
+  109:{illu:"Conjure Image"},
+  110:{big_ult:"Supernova"},
+  111:{savior:"False Promise",heal_heavy:"Purifying Flames",dispel_enemy:"Fortune's End"},
+  112:{savior:"Cold Embrace",lockdown:"Winter's Curse"},
+  113:{illu:"Tempest Double"},
+  120:{mobility:"Rolling Thunder"},
+  121:{lockdown:"Soulbind"},
+  123:{lockdown:"Bushwhack"},
+  126:{mobility:"Dissimilate"},
+  129:{big_ult:"Arena of Blood",phys_block:"Bulwark"},
+  135:{savior:"Solar Guardian",heal_heavy:"Solar Guardian"},
+  136:{lockdown:"Dispose",mobility:"Rebound"},
+  137:{channel_ult:"Pulverize",tanky:"Uproar armor"},
+  138:{ethereal_self:"Pierce the Veil"},
+};
+
+/* Rules: candidate tag × enemy tag → reason text. c/e are tag names. */
+const RULES = [
+  {c:"reincarnate",e:"channel_ult",t:(cA,e,eA)=>`${cA} means ${e} has to find a second ${eA} — the first one gets shrugged off.`},
+  {c:"reincarnate",e:"big_ult",t:(cA,e,eA)=>`${cA} ruins ${e}'s big ${eA} commitment.`},
+  {c:"mana_burn",e:"mana_dependent",t:(cA,e,eA)=>`${cA} starves ${e}'s mana — and ${e} is a passenger without it.`},
+  {c:"silence",e:"channel_ult",t:(cA,e,eA)=>`${cA} cancels ${e}'s ${eA} outright.`},
+  {c:"silence",e:"combo_caster",t:(cA,e)=>`${cA} shuts ${e}'s combo down before it starts.`},
+  {c:"aoe_clear",e:"illu",t:(cA,e)=>`${cA} deletes ${e}'s illusions in one cast.`},
+  {c:"aoe_clear",e:"summon",t:(cA,e)=>`${cA} clears ${e}'s summons instantly.`},
+  {c:"magic_resist",e:"magic_burst",t:(cA,e,eA)=>`${cA} shrugs off most of ${e}'s ${eA}.`},
+  {c:"spell_immune_ability",e:"magic_burst",t:(cA,e)=>`${cA} walks straight through ${e}'s magic.`},
+  {c:"spell_immune_ability",e:"lockdown",t:(cA,e,eA)=>`${cA} ignores ${e}'s ${eA}.`},
+  {c:"pierce_control",e:"spell_immune_ability",t:(cA,e,eA)=>`${cA} goes straight through ${e}'s ${eA}.`},
+  {c:"break",e:"passive_reliant",t:(cA,e,eA)=>`${cA} switches off ${e}'s ${eA}.`},
+  {c:"heal_cut",e:"heal_heavy",t:(cA,e,eA)=>`${cA} turns ${e}'s ${eA} off completely.`},
+  {c:"lockdown",e:"mobility",t:(cA,e,eA)=>`${cA} pins ${e} down before ${eA} can save them.`},
+  {c:"anti_blink",e:"mobility",t:(cA,e)=>`${cA} drags ${e} right back into the fight.`},
+  {c:"ethereal",e:"heavy_physical",t:(cA,e)=>`${cA} blanks ${e}'s physical damage.`},
+  {c:"ethereal_self",e:"heavy_physical",t:(cA,e)=>`${cA} makes their physical damage useless during fights.`},
+  {c:"phys_block",e:"heavy_physical",t:(cA,e)=>`${cA} eats ${e}'s right-clicks.`},
+  {c:"evasion",e:"heavy_physical",t:(cA,e)=>`${cA} blanks a chunk of ${e}'s attacks.`},
+  {c:"atk_slow",e:"heavy_physical",t:(cA,e)=>`${cA} cripples ${e}'s attack speed on contact.`},
+  {c:"mirror",e:"heavy_physical",t:(cA,e)=>`${cA} turns ${e}'s own damage against them.`},
+  {c:"spell_steal",e:"big_ult",t:(cA,e,eA)=>`${cA} can take ${eA} for your side.`},
+  {c:"spell_steal",e:"channel_ult",t:(cA,e,eA)=>`${cA} can take ${eA} for your side.`},
+  {c:"caster_punish",e:"magic_burst",t:(cA,e)=>`${cA} makes ${e} pay for every cast.`},
+  {c:"dmg_steal",e:"heavy_physical",t:(cA,e)=>`${cA} drains ${e}'s damage away mid-fight.`},
+  {c:"pure_dmg",e:"tanky",t:(cA,e)=>`${cA} melts straight through ${e}'s tankiness.`},
+  {c:"armor_reduction",e:"tanky",t:(cA,e)=>`${cA} shreds ${e}'s armor.`},
+  {c:"dispel",e:"lockdown",t:(cA,e,eA)=>`${cA} shrugs off ${e}'s ${eA}.`},
+  {c:"dispel_enemy",e:"heal_heavy",t:(cA,e)=>`${cA} strips ${e}'s buffs and regen.`},
+  {c:"savior",e:"magic_burst",t:(cA,e)=>`${cA} undoes ${e}'s burst damage.`},
+];
+
+/* All reasons why hero a beats hero b (may be empty) */
+function matchReasons(aId, bId){
+  const am = MECH[aId], bm = MECH[bId];
+  if(!am || !bm) return [];
+  const out = [];
+  const bName = S.heroes.get(bId)?.name || "them";
+  for(const r of RULES){
+    if(am[r.c] && bm[r.e]) out.push(r.t(am[r.c], bName, bm[r.e]));
+  }
+  return out;
+}
 
 const $ = id => document.getElementById(id);
 const el = (t,c,h) => {const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
@@ -468,7 +615,7 @@ async function recommend(){
         const e = m.get(hid);
         const adv = e ? (shrunkWR(e.candWins, e.g, 30) - 0.5)*100 : 0;
         sum += adv;
-        vsDetail.push({name:S.heroes.get(enemies[i])?.name||"?", adv});
+        vsDetail.push({id:enemies[i], name:S.heroes.get(enemies[i])?.name||"?", adv});
       });
       counter = sum / enemyMaps.length;
     }
@@ -545,10 +692,27 @@ function whyText(r){
   else if(myWR >= 55)                     parts.push(`Promising record (<b>${myWR.toFixed(0)}%</b>) but only ${r.st.games} games — small sample.`);
   else                                    parts.push(`<b>${r.st.games}</b> games at <b>${myWR.toFixed(0)}%</b> for you.`);
 
-  const bestVs = [...r.vsDetail].sort((a,b)=>b.adv-a.adv)[0];
-  const worstVs = [...r.vsDetail].sort((a,b)=>a.adv-b.adv)[0];
-  if(bestVs && bestVs.adv >= 1)   parts.push(`Strong into <b>${bestVs.name}</b> (${fmt(bestVs.adv)} matchup edge).`);
-  if(worstVs && worstVs.adv <= -1.5 && worstVs !== bestVs) parts.push(`Watch out: weak into <b>${worstVs.name}</b> (${fmt(worstVs.adv)}).`);
+  // favorable matchups: list ALL enemies it's good into, with mechanic reasons where known
+  const strong = r.vsDetail.filter(d=>d.adv>=1).sort((a,b)=>b.adv-a.adv);
+  if(strong.length){
+    parts.push(`Strong into ${strong.map(d=>`<b>${d.name}</b> (${fmt(d.adv)})`).join(" and ")}.`);
+    let reasonsGiven = 0;
+    for(const d of strong){
+      const rs = matchReasons(r.hid, d.id);
+      if(rs.length && reasonsGiven < 2){ parts.push(rs[0]); reasonsGiven++; }
+    }
+  }
+  // mechanic edge that the stats haven't caught yet (data-neutral matchup, known interaction)
+  for(const d of r.vsDetail.filter(d=>d.adv>-1 && d.adv<1)){
+    const rs = matchReasons(r.hid, d.id);
+    if(rs.length){ parts.push(`Bonus vs <b>${d.name}</b>: ${rs[0].charAt(0).toLowerCase()+rs[0].slice(1)}`); break; }
+  }
+  // warning: worst matchup, with the reason if mechanics explain it
+  const worst = [...r.vsDetail].sort((a,b)=>a.adv-b.adv)[0];
+  if(worst && worst.adv <= -1.5){
+    const why = matchReasons(worst.id, r.hid);
+    parts.push(`Careful into <b>${worst.name}</b> (${fmt(worst.adv)})${why.length ? " — " + why[0].charAt(0).toLowerCase()+why[0].slice(1) : "."}`);
+  }
 
   const bestWith = [...r.withDetail].sort((a,b)=>b.adv-a.adv)[0];
   if(bestWith && bestWith.adv >= 1) parts.push(`Pairs well with your <b>${bestWith.name}</b> (${fmt(bestWith.adv)} synergy).`);
